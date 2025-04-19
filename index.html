@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>Free 1080p 4K YouTube Video Downloader</title>
+  <meta
+    content="Fast and convenient YouTube video downloader by YTDown lets you download YouTube videos in MP4 at various resolutions like 1080p and 4K for free."
+    name="description"
+  />
+  <link href="https://www.ytdown.vercel.app/" rel="canonical" />
+  <link
+    href="https://www.YTDown.app/favicon.ico"
+    rel="icon"
+    type="image/x-icon"
+  />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --bg-primary: #121212;
+      --bg-secondary: #1e1e1e;
+      --bg-card: rgba(45, 45, 45, 0.7);
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --accent-color: #e91e63;
+      --accent-hover: #c2185b;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --mica-bg: rgba(30, 30, 30, 0.8);
+      --mica-secondary: rgba(45, 45, 45, 0.5);
+      --shadow-color: rgba(0, 0, 0, 0.3);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+      font-size: 1em;
+      line-height: 1.6;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 {
+      color: var(--text-primary);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    p, ul, ol, li {
+      color: var(--text-secondary);
+    }
+
+    a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+    }
+
+    a:hover {
+      color: var(--text-primary);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header with glass effect */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: var(--mica-bg);
+      border-bottom: 1px solid var(--card-border);
+      box-shadow: 0 4px 12px var(--shadow-color);
+      padding: 15px 0;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header .site-title a {
+      font-size: 1.5em;
+      font-weight: 600;
+      background: linear-gradient(90deg, var(--accent-color), #7c4dff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+
+    header .site-navbar {
+      display: flex;
+      gap: 20px;
+    }
+
+    header .site-navbar a {
+      font-size: 1em;
+      font-weight: 500;
+      color: var(--text-secondary);
+      position: relative;
+      padding: 5px 0;
+    }
+
+    header .site-navbar a:hover {
+      color: var(--text-primary);
+    }
+
+    header .site-navbar a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background: linear-gradient(90deg, var(--accent-color), #7c4dff);
+      transition: width 0.3s ease;
+    }
+
+    header .site-navbar a:hover::after {
+      width: 100%;
+    }
+
+    /* Main content area */
+    main {
+      padding: 40px 0;
+    }
+
+    /* Hero section with glassmorphism */
+    .downloader-section {
+      text-align: center;
+      padding: 60px 20px;
+      margin-bottom: 40px;
+      background: linear-gradient(135deg, rgba(46, 46, 46, 0.4), rgba(25, 25, 25, 0.4));
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 32px var(--shadow-color);
+    }
+
+    .downloader-section h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, var(--accent-color), #7c4dff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+
+    .input-container {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .input-container input {
+      width: 70%;
+      height: 56px;
+      padding: 15px 20px;
+      font-size: 1em;
+      line-height: 1;
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 2px solid var(--card-border);
+      border-right: none;
+      border-radius: 28px 0 0 28px;
+      outline: none;
+      box-shadow: 0 4px 12px var(--shadow-color);
+      transition: all 0.3s ease;
+    }
+
+    .input-container input:focus {
+      background-color: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent-color);
+    }
+
+    .input-container button {
+      width: auto;
+      height: 56px;
+      padding: 15px 25px;
+      font-size: 1em;
+      font-weight: 600;
+      line-height: 1;
+      background: linear-gradient(90deg, var(--accent-color), #7c4dff);
+      color: white;
+      border: none;
+      border-radius: 0 28px 28px 0;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--shadow-color);
+      transition: all 0.3s ease;
+    }
+
+    .input-container button:hover {
+      box-shadow: 0 6px 16px rgba(233, 30, 99, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* API Container for results - UPDATED FOR CENTERING */
+    .api-container {
+      margin: 2em auto;
+      max-width: 800px;
+      min-height: 100px;
+      background: var(--mica-secondary);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 32px var(--shadow-color);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .api-container iframe {
+      width: 100% !important;
+      min-height: 300px;
+      border: none;
+      display: block;
+    }
+
+    .loading-animation {
+      color: var(--text-primary);
+      font-size: 18px;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .loading-animation i {
+      margin-right: 10px;
+      color: var(--accent-color);
+    }
+
+    /* Description section */
+    .main-description {
+      margin: 60px auto;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+
+    .main-description p {
+      margin-bottom: 20px;
+      font-size: 1.1em;
+      line-height: 1.7;
+    }
+
+    /* Features section */
+    .content-section {
+      margin: 80px 0;
+    }
+
+    .content-section h2 {
+      font-size: 2em;
+      text-align: center;
+      margin-bottom: 40px;
+      background: linear-gradient(90deg, var(--accent-color), #7c4dff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      padding: 0 20px;
+    }
+
+    .feature {
+      background: var(--mica-secondary);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 24px var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature i {
+      color: var(--accent-color);
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    .feature h3 {
+      font-size: 1.3em;
+      margin-bottom: 15px;
+    }
+
+    .feature p {
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* Steps section */
+    .steps-section {
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 20px;
+    }
+
+    .step-card {
+      margin-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      background: var(--mica-secondary);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 24px var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    .step-header {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .step-number {
+      width: 44px;
+      height: 44px;
+      margin-right: 20px;
+      background: linear-gradient(135deg, var(--accent-color), #7c4dff);
+      color: white;
+      font-size: 1.3em;
+      font-weight: 600;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3);
+    }
+
+    .step-header h3 {
+      margin: 0;
+      font-size: 1.3em;
+    }
+
+    .step-card p {
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    /* FAQ section */
+    .faq-section {
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 20px;
+    }
+
+    .faq-item {
+      margin-bottom: 20px;
+      background: var(--mica-secondary);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 24px var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .faq-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    .faq-item h3 {
+      margin: 0;
+      padding: 20px 30px;
+      font-size: 1.2em;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .faq-item h3::after {
+      content: '\f078';
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      position: absolute;
+      right: 30px;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item h3.active::after {
+      transform: rotate(180deg);
+    }
+
+    .faq-item p {
+      margin: 0;
+      padding: 0 30px 20px;
+      display: none;
+    }
+
+    .faq-item p.active {
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--mica-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--card-border);
+      padding: 30px 0;
+      text-align: center;
+    }
+
+    .footer-credits {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .footer-credits p {
+      margin: 0;
+      font-size: 0.95em;
+    }
+
+    .footer-credits a {
+      color: var(--text-secondary);
+      margin-right: 20px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-credits a:last-child {
+      margin-right: 0;
+    }
+
+    .footer-credits a:hover {
+      color: var(--accent-color);
+    }
+
+    /* Glowing accent effect */
+    .glow {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(233, 30, 99, 0.3), transparent 70%);
+      filter: blur(60px);
+      z-index: -1;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .glow-1 {
+      top: 200px;
+      left: 10%;
+    }
+
+    .glow-2 {
+      top: 400px;
+      right: 10%;
+      background: radial-gradient(circle, rgba(124, 77, 255, 0.3), transparent 70%);
+    }
+
+    .glow-3 {
+      bottom: 200px;
+      left: 20%;
+      background: radial-gradient(circle, rgba(124, 77, 255, 0.2), transparent 70%);
+    }
+
+    /* Media queries */
+    @media(max-width: 768px) {
+      .downloader-section {
+        padding: 40px 15px;
+      }
+
+      .downloader-section h1 {
+        font-size: 1.8em;
+      }
+
+      .input-container {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .input-container input,
+      .input-container button {
+        width: 100%;
+        border-radius: 28px;
+        margin-bottom: 10px;
+      }
+
+      .input-container input {
+        border-right: 2px solid var(--card-border);
+      }
+
+      .feature {
+        padding: 20px;
+      }
+
+      .feature i {
+        font-size: 2em;
+      }
+
+      .feature h3 {
+        font-size: 1.2em;
+      }
+
+      .step-card {
+        padding: 20px;
+      }
+
+      .step-header h3 {
+        font-size: 1.2em;
+      }
+
+      .step-number {
+        width: 38px;
+        height: 38px;
+        font-size: 1.1em;
+      }
+
+      .content-section h2 {
+        font-size: 1.7em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Decorative glowing backgrounds -->
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+
+  <header>
+    <div class="header-container">
+      <div class="site-title">
+        <a href="#">ytdown.app</a>
+      </div>
+      <div class="site-navbar">
+        <a href="#how-to-use">How to use</a>
+        <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <section class="downloader-section">
+        <h1>YouTube Video Downloader</h1>
+        <p>High quality video downloads up to 4K resolution for free</p>
+        <div class="input-container">
+          <input
+            id="videoLinkInput"
+            placeholder="Paste YouTube video link here"
+            type="text"
+          />
+          <button onclick="convertVideo()">Download</button>
+        </div>
+      </section>
+
+      <section class="api-container" id="apiContainer"></section>
+
+      <section class="content-section main-description">
+        <p>
+          YTDown is an online YouTube downloader that makes saving videos or
+          extracting audio simple and convenient. It supports various formats,
+          including MP4 for videos up to 4K resolution and MP3 for audio,
+          allowing you to enjoy high-quality downloads.
+        </p>
+        <p>
+          We know you want a simple and reliable way to download your videos,
+          and that's why we built this easy-to-use tool for you. Whether you
+          want to save videos for offline viewing or extract audio for
+          listening, it provides an effortless solution.
+        </p>
+        <p>
+          You can choose your preferred format to ensure the best video quality
+          or clear sound, and it doesn't require software installation or
+          account registration. It's free to use and runs smoothly on all
+          devices, whether you're on a laptop, smartphone, or tablet.
+        </p>
+      </section>
+
+      <section class="content-section" id="features">
+        <h2>Features</h2>
+        <div class="features">
+          <div class="feature">
+            <i class="fas fa-download"></i>
+            <h3>Faster Downloads</h3>
+            <p>
+              Download your videos quickly and safely. Our video downloader
+              provides fast downloads so you can get your videos instantly
+              whenever you want.
+            </p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-user-friends"></i>
+            <h3>User-Friendly Interface</h3>
+            <p>
+              Whether you're tech-savvy or not, our minimalist design makes
+              downloading videos easy, allowing you to get your videos in just a
+              few clicks.
+            </p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-highlighter"></i>
+            <h3>High-Quality Downloads</h3>
+            <p>
+              It lets you download videos in the same quality as the original,
+              including 1080p, 2K, 4K, and more, ensuring clear visuals and
+              crisp details.
+            </p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-video"></i>
+            <h3>Versatile Format Options</h3>
+            <p>
+              It lets you download videos in multiple formats like MP4, MP3,
+              WAV, and more, so you can pick the one that works best for your
+              device.
+            </p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-desktop"></i>
+            <h3>Cross-Platform Support</h3>
+            <p>
+              Whether you are using Android, iPhone, Windows, macOS, or Linux,
+              you just need a web browser to easily download your favorite
+              videos.
+            </p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-user-check"></i>
+            <h3>No Registration Required</h3>
+            <p>
+              No sign-up required. It lets you download videos instantly. Visit
+              the website and start downloading your videos, no account
+              required.
+            </p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-globe"></i>
+            <h3>Multi-Service Support</h3>
+            <p>
+              It's not just for YouTube, but it also allows you to download
+              content from Facebook, Twitter, TikTok, Twitch, SoundCloud, Vimeo,
+              and more.
+            </p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-hand-holding-usd"></i>
+            <h3>Free and Easy to Use</h3>
+            <p>
+              It makes it easy to download your videos for free. No hidden fees
+              or subscriptions, just a simple and easy way to download your
+              videos.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section steps-section" id="how-to-use">
+        <h2>How to Download YouTube Videos with YTDown?</h2>
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-number">1</div>
+            <h3>Paste the YouTube Video Link</h3>
+          </div>
+          <p>
+            Copy the video link from YouTube and paste it into the designated
+            input field on YTDown. Then, click the first "Download" button. This
+            will retrieve the video card with details such as title, thumbnail,
+            format options, and a button.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-number">2</div>
+            <h3>Select the Format and Start Converting</h3>
+          </div>
+          <p>
+            Once the video card appears, select your preferred format from the
+            drop-down menu, such as MP4 (1080p) for video or MP3 for audio.
+            Then, click the second "Download" button to start converting the
+            video.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-number">3</div>
+            <h3>Download Your YouTube Video</h3>
+          </div>
+          <p>
+            Once the video conversion is complete, the second "Download" button
+            will be replaced by the final "Download" button. Click it to save
+            the video file to your device and enjoy it offline at your
+            convenience.
+          </p>
+        </div>
+      </section>
+
+      <section class="content-section faq-section" id="faq">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>Can I download unlimited videos?</h3>
+            <p>
+              Yes, you can download unlimited videos. There are no restrictions
+              on the number of videos you can save for offline viewing.
+            </p>
+          </div>
+          <div class="faq-item">
+            <h3>Can I download videos in 4K resolution?</h3>
+            <p>
+              Yes, you can download videos in stunning 4K resolution for a crisp
+              and ultra-high-definition (UHD) viewing experience.
+            </p>
+          </div>
+          <div class="faq-item">
+            <h3>Can I convert videos to audio files?</h3>
+            <p>
+              Yes, you can. Our tool allows you to convert your video to
+              multiple audio formats, including MP3, FLAC, WAV, and more.
+            </p>
+          </div>
+          <div class="faq-item">
+            <h3>Is YTDown safe to use?</h3>
+            <p>
+              Yes, YTDown is completely safe to use. It's a web-based tool that doesn't require any software installation, eliminating the risk of malware or viruses. We don't store your personal information or downloaded content on our servers.
+            </p>
+          </div>
+          <div class="faq-item">
+            <h3>Does YTDown work on mobile devices?</h3>
+            <p>
+              Absolutely! YTDown works perfectly on both Android and iOS devices. You can use it on any device with a web browser, including smartphones, tablets, laptops, and desktop computers.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-credits">
+      <p>
+        &copy; <span id="year"></span>
+        <a href="#">YTDown.app</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.9/iframeResizer.min.js"></script>
+  <script>
+    // Update current year
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // FAQ Toggle functionality
+    document.querySelectorAll('.faq-item h3').forEach(item => {
+      item.addEventListener('click', event => {
+        const content = event.target.nextElementSibling;
+        const isActive = content.classList.contains('active');
+        
+        // Close all FAQs
+        document.querySelectorAll('.faq-item p').forEach(p => {
+          p.classList.remove('active');
+        });
+        document.querySelectorAll('.faq-item h3').forEach(h => {
+          h.classList.remove('active');
+        });
+        
+        // Open clicked FAQ if it wasn't already open
+        if (!isActive) {
+          content.classList.add('active');
+          event.target.classList.add('active');
+        }
+      });
+    });
+
+    // Video conversion function
+    function convertVideo() {
+      const videoURL = document.getElementById("videoLinkInput").value.trim();
+      if (videoURL === "") return;
+      
+      const existingIframe = document.querySelector(".api-container iframe");
+      if (existingIframe) {
+        existingIframe.parentNode.removeChild(existingIframe);
+      }
+      
+      // Show loading animation
+      const container = document.querySelector(".api-container");
+      container.innerHTML = '<div class="loading-animation"><i class="fas fa-circle-notch fa-spin"></i> Processing your request...</div>';
+      
+      const encodedURL = "aHR0cHM6Ly9idXlsaW50LmNvbS96azIzYXM4ej9rZXk9OGY0OTE0MDdkZTYzOGMwM2NlNTVjMDgyOTRmYjg0MDY=";
+      const redirectURL = atob(encodedURL);
+      const encodedAPIURL = "aHR0cHM6Ly9wLm9jZWFuc2F2ZXIuaW4vYXBpL2NhcmQyLz91cmw9";
+      const apiURL = atob(encodedAPIURL); 
+      
+      const iframe = document.createElement("iframe");
+      iframe.setAttribute("class", "api-iframe");
+      iframe.setAttribute("scrolling", "no");
+      iframe.setAttribute("width", "100%");
+      iframe.setAttribute("height", "100%");
+      iframe.setAttribute("allowtransparency", "true");
+      iframe.setAttribute("style", "border:none");
+      iframe.setAttribute("src", apiURL + encodeURIComponent(videoURL));
+      iframe.setAttribute("rel", "noopener noreferrer");
+      
+      // Clear loading animation and add iframe
+      container.innerHTML = '';
+      container.appendChild(iframe);
+      
+      const scrollTarget = container.getBoundingClientRect().top + window.scrollY - 30;
+      window.scrollTo({ top: scrollTarget, behavior: "smooth" });
+      
+      if (typeof iFrameResize !== "undefined") {
+        iFrameResize({ log: false }, ".api-iframe");
+      }
+    }
+
+    // Create interactive floating glow effect that follows mouse position
+    document.addEventListener('mousemove', function(e) {
+      const glows = document.querySelectorAll('.glow');
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      
+      glows.forEach((glow, index) => {
+        // Apply different movement intensities for each glow
+        const offsetX = mouseX / (10 + index * 5);
+        const offsetY = mouseY / (10 + index * 5);
+        glow.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      });
+    });
+  </script>
+</body>
+</html>
