@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta content="width=device-width, initial-scale=1" name="viewport" />
-  <title>Free 1080p 4K YouTube Video Downloader</title>
+  <title>Free 1080p 4K YouTube Video Downloader - Enhanced</title>
   <meta
-    content="Fast and convenient YouTube video downloader by YTDown lets you download YouTube videos in MP4 at various resolutions like 1080p and 4K for free."
+    content="Fast and convenient YouTube video downloader by YTDown lets you download YouTube videos in MP4 at various resolutions like 1080p and 4K for free. Enhanced UI and features."
     name="description"
   />
   <link href="https://www.ytdown.vercel.app/" rel="canonical" />
@@ -31,6 +31,7 @@
       --mica-bg: rgba(30, 30, 30, 0.8);
       --mica-secondary: rgba(45, 45, 45, 0.5);
       --shadow-color: rgba(0, 0, 0, 0.3);
+      --error-color: #ff5252;
     }
 
     *,
@@ -39,6 +40,10 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -75,6 +80,21 @@
       margin: 0 auto;
       padding: 0 20px;
     }
+
+    /* Focus visible styles for accessibility */
+    *:focus-visible {
+        outline: 2px solid var(--accent-color);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.3);
+    }
+    /* Remove default outline if custom focus is prominent enough */
+    .input-container input:focus,
+    .input-container button.download-btn:focus,
+    .clear-input-btn:focus,
+    #backToTopBtn:focus {
+        outline: none; /* Custom focus handles this */
+    }
+
 
     /* Header with glass effect */
     header {
@@ -121,7 +141,8 @@
       padding: 5px 0;
     }
 
-    header .site-navbar a:hover {
+    header .site-navbar a:hover,
+    header .site-navbar a.active {
       color: var(--text-primary);
     }
 
@@ -136,7 +157,8 @@
       transition: width 0.3s ease;
     }
 
-    header .site-navbar a:hover::after {
+    header .site-navbar a:hover::after,
+    header .site-navbar a.active::after {
       width: 100%;
     }
 
@@ -167,21 +189,35 @@
       background-clip: text;
       text-fill-color: transparent;
     }
+    .downloader-section p:first-of-type { /* Target the subtitle */
+        font-size: 1.1em;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
 
     .input-container {
       margin-top: 30px;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start; /* Align items to start for error message */
+      flex-wrap: wrap; /* Allow wrapping for error message */
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
+      position: relative;
+    }
+
+    .input-wrapper {
+        display: flex;
+        width: 70%; /* Default width */
+        position: relative;
+        align-items: center;
     }
 
     .input-container input {
-      width: 70%;
+      flex-grow: 1; /* Take remaining space in wrapper */
       height: 56px;
-      padding: 15px 20px;
+      padding: 15px 45px 15px 20px; /* Add padding-right for clear button */
       font-size: 1em;
       line-height: 1;
       background-color: rgba(255, 255, 255, 0.08);
@@ -197,9 +233,33 @@
     .input-container input:focus {
       background-color: rgba(255, 255, 255, 0.12);
       border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px var(--accent-color); /* Focus ring */
     }
 
-    .input-container button {
+    .clear-input-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 5px;
+        display: none; /* Hidden by default */
+        z-index: 2;
+    }
+    .clear-input-btn:hover {
+        color: var(--text-primary);
+    }
+     .clear-input-btn:focus-visible {
+        color: var(--accent-color);
+        box-shadow: none; /* Handled by general *:focus-visible */
+    }
+
+
+    .input-container button.download-btn {
       width: auto;
       height: 56px;
       padding: 15px 25px;
@@ -215,12 +275,35 @@
       transition: all 0.3s ease;
     }
 
-    .input-container button:hover {
+    .input-container button.download-btn:hover {
       box-shadow: 0 6px 16px rgba(233, 30, 99, 0.4);
       transform: translateY(-2px);
     }
+    .input-container button.download-btn:focus {
+        box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-color); /* Custom focus ring */
+    }
 
-    /* API Container for results - UPDATED FOR CENTERING */
+    .input-error {
+        width: 100%;
+        text-align: center;
+        color: var(--error-color);
+        font-size: 0.9em;
+        margin-top: 10px;
+        display: none; /* Hidden by default */
+    }
+
+    .input-shake {
+      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-3px); }
+      40%, 60% { transform: translateX(3px); }
+    }
+
+
+    /* API Container for results */
     .api-container {
       margin: 2em auto;
       max-width: 800px;
@@ -236,6 +319,7 @@
       justify-content: center;
       align-items: center;
       position: relative;
+      padding: 20px; /* Padding for loading animation */
     }
 
     .api-container iframe {
@@ -245,17 +329,42 @@
       display: block;
     }
 
+    /* Enhanced Loading Animation */
     .loading-animation {
       color: var(--text-primary);
       font-size: 18px;
       text-align: center;
       padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .spinner {
+      margin: 0 auto 20px auto;
+      width: 70px;
+      text-align: center;
+    }
+    .spinner > div {
+      width: 18px;
+      height: 18px;
+      background-color: var(--accent-color);
+      border-radius: 100%;
+      display: inline-block;
+      animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+    }
+    .spinner .bounce1 { animation-delay: -0.32s; }
+    .spinner .bounce2 { animation-delay: -0.16s; }
+    @keyframes sk-bouncedelay {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1.0); }
+    }
+    .loading-animation p {
+        color: var(--text-secondary);
+        font-size: 1.1em;
+        margin-top: 10px;
     }
 
-    .loading-animation i {
-      margin-right: 10px;
-      color: var(--accent-color);
-    }
 
     /* Description section */
     .main-description {
@@ -274,6 +383,10 @@
     .content-section {
       margin: 80px 0;
     }
+    .content-section[tabindex="-1"]:focus { /* For programmatic focus on nav click */
+        outline: none; /* Don't show outline on section focus */
+    }
+
 
     .content-section h2 {
       font-size: 2em;
@@ -401,7 +514,7 @@
       overflow: hidden;
       border: 1px solid var(--card-border);
       box-shadow: 0 8px 24px var(--shadow-color);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, max-height 0.5s ease-in-out;
     }
 
     .faq-item:hover {
@@ -415,11 +528,15 @@
       font-size: 1.2em;
       position: relative;
       cursor: pointer;
+      transition: background-color 0.2s ease;
     }
+     .faq-item h3:hover {
+        background-color: rgba(255,255,255,0.05);
+     }
 
     .faq-item h3::after {
-      content: '\f078';
-      font-family: 'Font Awesome 5 Free';
+      content: '\f078'; /* FontAwesome chevron-down */
+      font-family: 'Font Awesome 6 Free'; /* Ensure correct family for FA6 */
       font-weight: 900;
       position: absolute;
       right: 30px;
@@ -433,11 +550,14 @@
     .faq-item p {
       margin: 0;
       padding: 0 30px 20px;
-      display: none;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease-in-out, padding-bottom 0.5s ease-in-out;
     }
 
     .faq-item p.active {
-      display: block;
+      max-height: 500px; /* Adjust as needed for content length */
+      padding-bottom: 20px;
     }
 
     /* Footer */
@@ -463,12 +583,8 @@
 
     .footer-credits a {
       color: var(--text-secondary);
-      margin-right: 20px;
+      margin: 0 10px; /* Adjusted margin */
       transition: color 0.3s ease;
-    }
-
-    .footer-credits a:last-child {
-      margin-right: 0;
     }
 
     .footer-credits a:hover {
@@ -477,7 +593,7 @@
 
     /* Glowing accent effect */
     .glow {
-      position: absolute;
+      position: fixed; /* Changed to fixed for consistent background effect */
       width: 300px;
       height: 300px;
       background: radial-gradient(circle, rgba(233, 30, 99, 0.3), transparent 70%);
@@ -485,120 +601,136 @@
       z-index: -1;
       opacity: 0.6;
       pointer-events: none;
+      transition: transform 0.1s linear; /* Smooth transform for mouse move */
     }
 
-    .glow-1 {
-      top: 200px;
-      left: 10%;
+    .glow-1 { top: 10%; left: 10%; }
+    .glow-2 { top: 50%; right: 10%; background: radial-gradient(circle, rgba(124, 77, 255, 0.3), transparent 70%); }
+    .glow-3 { bottom: 10%; left: 20%; background: radial-gradient(circle, rgba(124, 77, 255, 0.2), transparent 70%); }
+
+
+    /* Back to Top Button */
+    #backToTopBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--accent-color), #7c4dff);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 12px var(--shadow-color);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    #backToTopBtn.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    #backToTopBtn:hover {
+      box-shadow: 0 6px 16px rgba(233, 30, 99, 0.4);
+      transform: translateY(-3px) !important; /* Ensure hover transform overrides .show */
+    }
+    #backToTopBtn:focus-visible {
+        box-shadow: 0 0 0 4px var(--accent-color); /* Ensure focus ring is visible */
     }
 
-    .glow-2 {
-      top: 400px;
-      right: 10%;
-      background: radial-gradient(circle, rgba(124, 77, 255, 0.3), transparent 70%);
-    }
-
-    .glow-3 {
-      bottom: 200px;
-      left: 20%;
-      background: radial-gradient(circle, rgba(124, 77, 255, 0.2), transparent 70%);
-    }
 
     /* Media queries */
     @media(max-width: 768px) {
       .downloader-section {
         padding: 40px 15px;
       }
-
-      .downloader-section h1 {
-        font-size: 1.8em;
-      }
+      .downloader-section h1 { font-size: 1.8em; }
 
       .input-container {
         flex-direction: column;
-        width: 100%;
+        align-items: stretch; /* Stretch items to full width */
       }
-
-      .input-container input,
-      .input-container button {
+      .input-wrapper {
+          width: 100%;
+          margin-bottom: 10px;
+      }
+      .input-container input {
+        border-radius: 28px; /* Full radius on mobile */
+        border-right: 2px solid var(--card-border); /* Add back border right */
+      }
+      .input-container button.download-btn {
         width: 100%;
-        border-radius: 28px;
+        border-radius: 28px; /* Full radius on mobile */
         margin-bottom: 10px;
       }
 
-      .input-container input {
-        border-right: 2px solid var(--card-border);
-      }
+      .feature { padding: 20px; }
+      .feature i { font-size: 2em; }
+      .feature h3 { font-size: 1.2em; }
+      .step-card { padding: 20px; }
+      .step-header h3 { font-size: 1.2em; }
+      .step-number { width: 38px; height: 38px; font-size: 1.1em; }
+      .content-section h2 { font-size: 1.7em; }
 
-      .feature {
-        padding: 20px;
-      }
-
-      .feature i {
-        font-size: 2em;
-      }
-
-      .feature h3 {
-        font-size: 1.2em;
-      }
-
-      .step-card {
-        padding: 20px;
-      }
-
-      .step-header h3 {
-        font-size: 1.2em;
-      }
-
-      .step-number {
-        width: 38px;
-        height: 38px;
-        font-size: 1.1em;
-      }
-
-      .content-section h2 {
-        font-size: 1.7em;
-      }
+      header .site-navbar { display: none; } /* Basic mobile: hide nav or implement burger */
+      /* For a full solution, a hamburger menu would be added here */
     }
   </style>
 </head>
-<body>
+<body role="document">
   <!-- Decorative glowing backgrounds -->
   <div class="glow glow-1"></div>
   <div class="glow glow-2"></div>
   <div class="glow glow-3"></div>
 
-  <header>
+  <header role="banner">
     <div class="header-container">
       <div class="site-title">
         <a href="#">ytdown.app</a>
       </div>
-      <div class="site-navbar">
+      <nav class="site-navbar" aria-label="Main navigation">
         <a href="#how-to-use">How to use</a>
         <a href="#features">Features</a>
         <a href="#faq">FAQ</a>
-      </div>
+      </nav>
     </div>
   </header>
 
-  <main>
+  <main role="main">
     <div class="container">
-      <section class="downloader-section">
-        <h1>YouTube Video Downloader</h1>
+      <section class="downloader-section" aria-labelledby="downloader-heading">
+        <h1 id="downloader-heading">YouTube Video Downloader</h1>
         <p>High quality video downloads up to 4K resolution for free</p>
         <div class="input-container">
-          <input
-            id="videoLinkInput"
-            placeholder="Paste YouTube video link here"
-            type="text"
-          />
-          <button onclick="convertVideo()">Download</button>
+          <div class="input-wrapper">
+            <input
+              id="videoLinkInput"
+              placeholder="Paste YouTube video link here"
+              type="url"
+              aria-label="YouTube video link"
+              aria-describedby="inputErrorMsg"
+            />
+            <button type="button" id="clearInputBtn" class="clear-input-btn" aria-label="Clear input field" title="Clear input">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <button onclick="convertVideo()" class="download-btn" aria-label="Download or process video link">Download</button>
+          <div id="inputErrorMsg" class="input-error" role="alert" aria-live="assertive"></div>
         </div>
       </section>
 
-      <section class="api-container" id="apiContainer"></section>
+      <section class="api-container" id="apiContainer" aria-live="polite">
+        <!-- Iframe or loading animation will be injected here -->
+      </section>
 
-      <section class="content-section main-description">
+      <section class="content-section main-description" aria-label="About YTDown">
         <p>
           YTDown is an online YouTube downloader that makes saving videos or
           extracting audio simple and convenient. It supports various formats,
@@ -619,11 +751,11 @@
         </p>
       </section>
 
-      <section class="content-section" id="features">
-        <h2>Features</h2>
+      <section class="content-section" id="features" aria-labelledby="features-heading" tabindex="-1">
+        <h2 id="features-heading">Features</h2>
         <div class="features">
           <div class="feature">
-            <i class="fas fa-download"></i>
+            <i class="fas fa-download" aria-hidden="true"></i>
             <h3>Faster Downloads</h3>
             <p>
               Download your videos quickly and safely. Our video downloader
@@ -632,7 +764,7 @@
             </p>
           </div>
           <div class="feature">
-            <i class="fas fa-user-friends"></i>
+            <i class="fas fa-user-friends" aria-hidden="true"></i>
             <h3>User-Friendly Interface</h3>
             <p>
               Whether you're tech-savvy or not, our minimalist design makes
@@ -641,7 +773,7 @@
             </p>
           </div>
           <div class="feature">
-            <i class="fas fa-highlighter"></i>
+            <i class="fas fa-highlighter" aria-hidden="true"></i>
             <h3>High-Quality Downloads</h3>
             <p>
               It lets you download videos in the same quality as the original,
@@ -650,7 +782,7 @@
             </p>
           </div>
           <div class="feature">
-            <i class="fas fa-video"></i>
+            <i class="fas fa-video" aria-hidden="true"></i>
             <h3>Versatile Format Options</h3>
             <p>
               It lets you download videos in multiple formats like MP4, MP3,
@@ -659,7 +791,7 @@
             </p>
           </div>
           <div class="feature">
-            <i class="fas fa-desktop"></i>
+            <i class="fas fa-desktop" aria-hidden="true"></i>
             <h3>Cross-Platform Support</h3>
             <p>
               Whether you are using Android, iPhone, Windows, macOS, or Linux,
@@ -668,7 +800,7 @@
             </p>
           </div>
           <div class="feature">
-            <i class="fas fa-user-check"></i>
+            <i class="fas fa-user-check" aria-hidden="true"></i>
             <h3>No Registration Required</h3>
             <p>
               No sign-up required. It lets you download videos instantly. Visit
@@ -677,7 +809,7 @@
             </p>
           </div>
           <div class="feature">
-            <i class="fas fa-globe"></i>
+            <i class="fas fa-globe" aria-hidden="true"></i>
             <h3>Multi-Service Support</h3>
             <p>
               It's not just for YouTube, but it also allows you to download
@@ -686,7 +818,7 @@
             </p>
           </div>
           <div class="feature">
-            <i class="fas fa-hand-holding-usd"></i>
+            <i class="fas fa-hand-holding-usd" aria-hidden="true"></i>
             <h3>Free and Easy to Use</h3>
             <p>
               It makes it easy to download your videos for free. No hidden fees
@@ -697,11 +829,11 @@
         </div>
       </section>
 
-      <section class="content-section steps-section" id="how-to-use">
-        <h2>How to Download YouTube Videos with YTDown?</h2>
+      <section class="content-section steps-section" id="how-to-use" aria-labelledby="how-to-use-heading" tabindex="-1">
+        <h2 id="how-to-use-heading">How to Download YouTube Videos with YTDown?</h2>
         <div class="step-card">
           <div class="step-header">
-            <div class="step-number">1</div>
+            <div class="step-number" aria-hidden="true">1</div>
             <h3>Paste the YouTube Video Link</h3>
           </div>
           <p>
@@ -713,7 +845,7 @@
         </div>
         <div class="step-card">
           <div class="step-header">
-            <div class="step-number">2</div>
+            <div class="step-number" aria-hidden="true">2</div>
             <h3>Select the Format and Start Converting</h3>
           </div>
           <p>
@@ -725,7 +857,7 @@
         </div>
         <div class="step-card">
           <div class="step-header">
-            <div class="step-number">3</div>
+            <div class="step-number" aria-hidden="true">3</div>
             <h3>Download Your YouTube Video</h3>
           </div>
           <p>
@@ -737,51 +869,19 @@
         </div>
       </section>
 
-      <section class="content-section faq-section" id="faq">
-        <h2>Frequently Asked Questions</h2>
+      <section class="content-section faq-section" id="faq" aria-labelledby="faq-heading" tabindex="-1">
+        <h2 id="faq-heading">Frequently Asked Questions</h2>
         <div class="faq-list">
-          <div class="faq-item">
-            <h3>Can I download unlimited videos?</h3>
-            <p>
-              Yes, you can download unlimited videos. There are no restrictions
-              on the number of videos you can save for offline viewing.
-            </p>
-          </div>
-          <div class="faq-item">
-            <h3>Can I download videos in 4K resolution?</h3>
-            <p>
-              Yes, you can download videos in stunning 4K resolution for a crisp
-              and ultra-high-definition (UHD) viewing experience.
-            </p>
-          </div>
-          <div class="faq-item">
-            <h3>Can I convert videos to audio files?</h3>
-            <p>
-              Yes, you can. Our tool allows you to convert your video to
-              multiple audio formats, including MP3, FLAC, WAV, and more.
-            </p>
-          </div>
-          <div class="faq-item">
-            <h3>Is YTDown safe to use?</h3>
-            <p>
-              Yes, YTDown is completely safe to use. It's a web-based tool that doesn't require any software installation, eliminating the risk of malware or viruses. We don't store your personal information or downloaded content on our servers.
-            </p>
-          </div>
-          <div class="faq-item">
-            <h3>Does YTDown work on mobile devices?</h3>
-            <p>
-              Absolutely! YTDown works perfectly on both Android and iOS devices. You can use it on any device with a web browser, including smartphones, tablets, laptops, and desktop computers.
-            </p>
           </div>
         </div>
       </section>
     </div>
   </main>
 
-  <footer>
+  <footer role="contentinfo">
     <div class="footer-credits">
       <p>
-        &copy; <span id="year"></span>
+        © <span id="year"></span>
         <a href="#">YTDown.app</a>
         <a href="#">Terms of Service</a>
         <a href="#">Privacy Policy</a>
@@ -789,88 +889,216 @@
     </div>
   </footer>
 
+  <button id="backToTopBtn" title="Go to top" aria-label="Back to top">
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+  </button>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.9/iframeResizer.min.js"></script>
   <script>
-    // Update current year
-    document.getElementById("year").textContent = new Date().getFullYear();
+    document.addEventListener('DOMContentLoaded', () => {
+      // Update current year
+      document.getElementById("year").textContent = new Date().getFullYear();
 
-    // FAQ Toggle functionality
-    document.querySelectorAll('.faq-item h3').forEach(item => {
-      item.addEventListener('click', event => {
-        const content = event.target.nextElementSibling;
-        const isActive = content.classList.contains('active');
-        
-        // Close all FAQs
-        document.querySelectorAll('.faq-item p').forEach(p => {
-          p.classList.remove('active');
+      // FAQ Toggle functionality
+      const faqItemsData = [
+        { q: "Can I download unlimited videos?", a: "Yes, you can download unlimited videos. There are no restrictions on the number of videos you can save for offline viewing." },
+        { q: "Can I download videos in 4K resolution?", a: "Yes, you can download videos in stunning 4K resolution for a crisp and ultra-high-definition (UHD) viewing experience." },
+        { q: "Can I convert videos to audio files?", a: "Yes, you can. Our tool allows you to convert your video to multiple audio formats, including MP3, FLAC, WAV, and more." },
+        { q: "Is YTDown safe to use?", a: "Yes, YTDown is completely safe to use. It's a web-based tool that doesn't require any software installation, eliminating the risk of malware or viruses. We don't store your personal information or downloaded content on our servers." },
+        { q: "Does YTDown work on mobile devices?", a: "Absolutely! YTDown works perfectly on both Android and iOS devices. You can use it on any device with a web browser, including smartphones, tablets, laptops, and desktop computers." }
+      ];
+
+      const faqList = document.querySelector('.faq-list');
+      faqItemsData.forEach((itemData, index) => {
+        const faqItem = document.createElement('div');
+        faqItem.className = 'faq-item';
+
+        const faqQuestion = document.createElement('h3');
+        faqQuestion.textContent = itemData.q;
+        faqQuestion.setAttribute('aria-expanded', 'false');
+        faqQuestion.setAttribute('aria-controls', `faq-answer-${index}`);
+        faqQuestion.setAttribute('id', `faq-question-${index}`);
+
+        const faqAnswer = document.createElement('p');
+        faqAnswer.textContent = itemData.a;
+        faqAnswer.setAttribute('id', `faq-answer-${index}`);
+        faqAnswer.setAttribute('role', 'region');
+        faqAnswer.setAttribute('aria-labelledby', `faq-question-${index}`);
+
+        faqItem.appendChild(faqQuestion);
+        faqItem.appendChild(faqAnswer);
+        faqList.appendChild(faqItem);
+
+        faqQuestion.addEventListener('click', () => {
+          const isCurrentlyActive = faqQuestion.classList.contains('active');
+          
+          // Close all other FAQ items
+          faqList.querySelectorAll('.faq-item h3').forEach(otherToggle => {
+            if (otherToggle !== faqQuestion) {
+              otherToggle.classList.remove('active');
+              otherToggle.setAttribute('aria-expanded', 'false');
+              otherToggle.nextElementSibling.classList.remove('active');
+            }
+          });
+
+          // Toggle current item
+          if (isCurrentlyActive) {
+            faqQuestion.classList.remove('active');
+            faqQuestion.setAttribute('aria-expanded', 'false');
+            faqAnswer.classList.remove('active');
+          } else {
+            faqQuestion.classList.add('active');
+            faqQuestion.setAttribute('aria-expanded', 'true');
+            faqAnswer.classList.add('active');
+          }
         });
-        document.querySelectorAll('.faq-item h3').forEach(h => {
-          h.classList.remove('active');
-        });
-        
-        // Open clicked FAQ if it wasn't already open
-        if (!isActive) {
-          content.classList.add('active');
-          event.target.classList.add('active');
+      });
+
+
+      // Input field clear button and error handling
+      const videoLinkInput = document.getElementById("videoLinkInput");
+      const clearInputBtn = document.getElementById("clearInputBtn");
+      const inputErrorMsg = document.getElementById("inputErrorMsg");
+
+      videoLinkInput.addEventListener('input', () => {
+        clearInputBtn.style.display = videoLinkInput.value ? 'flex' : 'none'; // use flex for icon centering
+        if (videoLinkInput.value) {
+          inputErrorMsg.style.display = 'none'; // Hide error when user types
         }
       });
-    });
 
-    // Video conversion function
-    function convertVideo() {
-      const videoURL = document.getElementById("videoLinkInput").value.trim();
-      if (videoURL === "") return;
-      
-      const existingIframe = document.querySelector(".api-container iframe");
-      if (existingIframe) {
-        existingIframe.parentNode.removeChild(existingIframe);
-      }
-      
-      // Show loading animation
-      const container = document.querySelector(".api-container");
-      container.innerHTML = '<div class="loading-animation"><i class="fas fa-circle-notch fa-spin"></i> Processing your request...</div>';
-      
-      const encodedURL = "aHR0cHM6Ly9idXlsaW50LmNvbS96azIzYXM4ej9rZXk9OGY0OTE0MDdkZTYzOGMwM2NlNTVjMDgyOTRmYjg0MDY=";
-      const redirectURL = atob(encodedURL);
-      const encodedAPIURL = "aHR0cHM6Ly9wLm9jZWFuc2F2ZXIuaW4vYXBpL2NhcmQyLz91cmw9";
-      const apiURL = atob(encodedAPIURL); 
-      
-      const iframe = document.createElement("iframe");
-      iframe.setAttribute("class", "api-iframe");
-      iframe.setAttribute("scrolling", "no");
-      iframe.setAttribute("width", "100%");
-      iframe.setAttribute("height", "100%");
-      iframe.setAttribute("allowtransparency", "true");
-      iframe.setAttribute("style", "border:none");
-      iframe.setAttribute("src", apiURL + encodeURIComponent(videoURL));
-      iframe.setAttribute("rel", "noopener noreferrer");
-      
-      // Clear loading animation and add iframe
-      container.innerHTML = '';
-      container.appendChild(iframe);
-      
-      const scrollTarget = container.getBoundingClientRect().top + window.scrollY - 30;
-      window.scrollTo({ top: scrollTarget, behavior: "smooth" });
-      
-      if (typeof iFrameResize !== "undefined") {
-        iFrameResize({ log: false }, ".api-iframe");
-      }
-    }
-
-    // Create interactive floating glow effect that follows mouse position
-    document.addEventListener('mousemove', function(e) {
-      const glows = document.querySelectorAll('.glow');
-      const mouseX = e.clientX;
-      const mouseY = e.clientY;
-      
-      glows.forEach((glow, index) => {
-        // Apply different movement intensities for each glow
-        const offsetX = mouseX / (10 + index * 5);
-        const offsetY = mouseY / (10 + index * 5);
-        glow.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      clearInputBtn.addEventListener('click', () => {
+        videoLinkInput.value = '';
+        clearInputBtn.style.display = 'none';
+        inputErrorMsg.style.display = 'none';
+        videoLinkInput.focus();
       });
-    });
+
+      // Back to Top Button
+      const backToTopBtn = document.getElementById('backToTopBtn');
+      window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+          backToTopBtn.classList.add('show');
+        } else {
+          backToTopBtn.classList.remove('show');
+        }
+      });
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // ScrollSpy for Navbar
+      const sections = document.querySelectorAll('main section[id][aria-labelledby]'); // Target sections with IDs meant for nav
+      const navLinks = document.querySelectorAll('header .site-navbar a');
+      const headerHeight = document.querySelector('header').offsetHeight;
+
+      window.addEventListener('scroll', () => {
+        let currentSectionId = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - headerHeight - 50; // 50px offset for activation
+          if (pageYOffset >= sectionTop) {
+            currentSectionId = section.getAttribute('id');
+          }
+        });
+
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          // Ensure link.getAttribute('href') is not null and is a string
+          const href = link.getAttribute('href');
+          if (href && href.substring(1) === currentSectionId) {
+            link.classList.add('active');
+          }
+        });
+      });
+      
+      // Create interactive floating glow effect that follows mouse position
+      const glows = document.querySelectorAll('.glow');
+      document.addEventListener('mousemove', function(e) {
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        
+        glows.forEach((glow, index) => {
+          const moveX = (mouseX - window.innerWidth / 2) / (30 + index * 15); 
+          const moveY = (mouseY - window.innerHeight / 2) / (30 + index * 15);
+          glow.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        });
+      });
+
+    }); // End DOMContentLoaded
+
+    // Video conversion function (Global scope as it's called by onclick)
+    function convertVideo() {
+      const videoLinkInput = document.getElementById("videoLinkInput");
+      const videoURL = videoLinkInput.value.trim();
+      const inputErrorMsg = document.getElementById("inputErrorMsg");
+      
+      if (videoURL === "") {
+        inputErrorMsg.textContent = "Please paste a YouTube video link first.";
+        inputErrorMsg.style.display = 'block';
+        videoLinkInput.classList.add('input-shake');
+        setTimeout(() => videoLinkInput.classList.remove('input-shake'), 500);
+        videoLinkInput.focus();
+        return;
+      }
+      // Basic URL validation (very simple)
+      try {
+        new URL(videoURL); // Check if it's a valid URL structure
+        if (!videoURL.toLowerCase().includes("youtube.com/") && !videoURL.toLowerCase().includes("youtu.be/")) {
+            // Allow other services as per features, so this check might be too strict
+            // For now, we let the API handle specific URL validation
+        }
+      } catch (_) {
+        inputErrorMsg.textContent = "Please enter a valid video URL.";
+        inputErrorMsg.style.display = 'block';
+        videoLinkInput.classList.add('input-shake');
+        setTimeout(() => videoLinkInput.classList.remove('input-shake'), 500);
+        videoLinkInput.focus();
+        return;
+      }
+      inputErrorMsg.style.display = 'none'; // Clear error on successful start
+      
+      const apiContainer = document.getElementById("apiContainer");
+      apiContainer.innerHTML = `
+        <div class="loading-animation">
+          <div class="spinner">
+            <div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div>
+          </div>
+          <p>Processing your request, please hang tight...</p>
+        </div>`;
+      
+      // Ensure iframe resizer is available or wait for it
+      const createIframe = () => {
+          const encodedURL = "aHR0cHM6Ly9idXlsaW50LmNvbS96azIzYXM4ej9rZXk9OGY0OTE0MDdkZTYzOGMwM2NlNTVjMDgyOTRmYjg0MDY="; // This seems to be a redirect/ad link
+          const redirectURL = atob(encodedURL); // Not directly used for iframe src
+          const encodedAPIURL = "aHR0cHM6Ly9wLm9jZWFuc2F2ZXIuaW4vYXBpL2NhcmQyLz91cmw9";
+          const apiURL = atob(encodedAPIURL); 
+          
+          const iframe = document.createElement("iframe");
+          iframe.setAttribute("class", "api-iframe");
+          iframe.setAttribute("scrolling", "no");
+          iframe.setAttribute("allowtransparency", "true");
+          iframe.setAttribute("style", "border:none; width:100%; min-height:300px; display:block;"); // Ensure initial display
+          iframe.setAttribute("src", apiURL + encodeURIComponent(videoURL));
+          iframe.setAttribute("title", "Video Download Options"); // Accessibility
+          iframe.setAttribute("rel", "noopener noreferrer"); // Security for external content
+          
+          apiContainer.innerHTML = ''; // Clear loading animation
+          apiContainer.appendChild(iframe);
+          
+          const scrollTarget = apiContainer.getBoundingClientRect().top + window.scrollY - (document.querySelector('header').offsetHeight + 20);
+          window.scrollTo({ top: scrollTarget, behavior: "smooth" });
+          
+          if (typeof iFrameResize !== "undefined") {
+            iFrameResize({ log: false, checkOrigin: false }, ".api-iframe"); // checkOrigin: false if API domain is different
+          } else {
+            console.warn("iFrameResize not loaded. Iframe might not resize correctly.");
+          }
+      };
+
+      // Small delay to ensure DOM update for loading animation before iframe creation blocks rendering
+      setTimeout(createIframe, 100);
+    }
   </script>
 </body>
 </html>
