@@ -47,18 +47,21 @@
     }
 
     body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+      font-family: 'Segoe UI', -apple-system, BlinkMacMacFont, Roboto, Arial, sans-serif;
       font-size: 1em;
       line-height: 1.6;
       background-color: var(--bg-primary);
       color: var(--text-primary);
       overflow-x: hidden;
+      /* Removed redundant role="document" from body */
     }
 
     h1, h2, h3 {
       color: var(--text-primary);
       font-weight: 600;
       letter-spacing: 0.5px;
+      /* Added text-wrap for better heading line breaking on modern browsers */
+      text-wrap: balance; 
     }
 
     p, ul, ol, li {
@@ -87,12 +90,22 @@
         outline-offset: 2px;
         box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.3);
     }
-    /* Remove default outline if custom focus is prominent enough */
+    /* Custom focus styles for input and buttons, ensuring they override default outline */
     .input-container input:focus,
     .input-container button.download-btn:focus,
     .clear-input-btn:focus,
     #backToTopBtn:focus {
         outline: none; /* Custom focus handles this */
+        /* Re-apply custom box-shadow for specific elements if they need unique focus styles */
+        box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-color); 
+    }
+    /* Ensure the general focus-visible applies to links and other elements if not specifically overridden */
+    header .site-navbar a:focus-visible,
+    footer a:focus-visible,
+    .faq-item h3:focus-visible {
+        outline: 2px solid var(--accent-color);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.3);
     }
 
 
@@ -233,7 +246,7 @@
     .input-container input:focus {
       background-color: rgba(255, 255, 255, 0.12);
       border-color: var(--accent-color);
-      box-shadow: 0 0 0 2px var(--accent-color); /* Focus ring */
+      /* Custom focus ring handled by input-container input:focus selector above */
     }
 
     .clear-input-btn {
@@ -253,10 +266,7 @@
     .clear-input-btn:hover {
         color: var(--text-primary);
     }
-     .clear-input-btn:focus-visible {
-        color: var(--accent-color);
-        box-shadow: none; /* Handled by general *:focus-visible */
-    }
+     /* Focus-visible applies to this button as well via the general rule */
 
 
     .input-container button.download-btn {
@@ -279,9 +289,8 @@
       box-shadow: 0 6px 16px rgba(233, 30, 99, 0.4);
       transform: translateY(-2px);
     }
-    .input-container button.download-btn:focus {
-        box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-color); /* Custom focus ring */
-    }
+    /* Focus for download button handled by input-container button.download-btn:focus selector above */
+
 
     .input-error {
         width: 100%;
@@ -383,8 +392,9 @@
     .content-section {
       margin: 80px 0;
     }
-    .content-section[tabindex="-1"]:focus { /* For programmatic focus on nav click */
-        outline: none; /* Don't show outline on section focus */
+    /* Removed specific :focus outline as general focus-visible covers it, or specific elements need their own */
+    .content-section[tabindex="-1"]:focus { 
+        outline: none; 
     }
 
 
@@ -529,6 +539,8 @@
       position: relative;
       cursor: pointer;
       transition: background-color 0.2s ease;
+      /* Ensure h3 is focusable as it's a toggle button */
+      tab-index: 0; /* Make it tabbable */
     }
      .faq-item h3:hover {
         background-color: rgba(255,255,255,0.05);
@@ -641,9 +653,7 @@
       box-shadow: 0 6px 16px rgba(233, 30, 99, 0.4);
       transform: translateY(-3px) !important; /* Ensure hover transform overrides .show */
     }
-    #backToTopBtn:focus-visible {
-        box-shadow: 0 0 0 4px var(--accent-color); /* Ensure focus ring is visible */
-    }
+    /* Focus for back to top button handled by #backToTopBtn:focus selector above */
 
 
     /* Media queries */
@@ -679,12 +689,12 @@
       .step-number { width: 38px; height: 38px; font-size: 1.1em; }
       .content-section h2 { font-size: 1.7em; }
 
-      header .site-navbar { display: none; } /* Basic mobile: hide nav or implement burger */
       /* For a full solution, a hamburger menu would be added here */
+      header .site-navbar { display: none; } /* Basic mobile: hide nav or implement burger */
     }
   </style>
 </head>
-<body role="document">
+<body>
   <!-- Decorative glowing backgrounds -->
   <div class="glow glow-1"></div>
   <div class="glow glow-2"></div>
@@ -693,12 +703,12 @@
   <header role="banner">
     <div class="header-container">
       <div class="site-title">
-        <a href="#">ytdown.app</a>
+        <a href="/" title="Go to homepage">ytdown.app</a>
       </div>
       <nav class="site-navbar" aria-label="Main navigation">
-        <a href="#how-to-use">How to use</a>
-        <a href="#features">Features</a>
-        <a href="#faq">FAQ</a>
+        <a href="#how-to-use" title="Learn how to use YTDown">How to use</a>
+        <a href="#features" title="Discover YTDown features">Features</a>
+        <a href="#faq" title="Frequently asked questions about YTDown">FAQ</a>
       </nav>
     </div>
   </header>
@@ -872,7 +882,7 @@
       <section class="content-section faq-section" id="faq" aria-labelledby="faq-heading" tabindex="-1">
         <h2 id="faq-heading">Frequently Asked Questions</h2>
         <div class="faq-list">
-          </div>
+          <!-- FAQ items will be dynamically loaded here by JS -->
         </div>
       </section>
     </div>
@@ -882,9 +892,9 @@
     <div class="footer-credits">
       <p>
         © <span id="year"></span>
-        <a href="#">YTDown.app</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Privacy Policy</a>
+        <a href="/" title="Go to homepage">YTDown.app</a>
+        <a href="/terms-of-service" title="Read our Terms of Service">Terms of Service</a>
+        <a href="/privacy-policy" title="Read our Privacy Policy">Privacy Policy</a>
       </p>
     </div>
   </footer>
@@ -919,39 +929,56 @@
         faqQuestion.setAttribute('aria-expanded', 'false');
         faqQuestion.setAttribute('aria-controls', `faq-answer-${index}`);
         faqQuestion.setAttribute('id', `faq-question-${index}`);
+        // Make the h3 tag keyboard focusable for accessibility
+        faqQuestion.setAttribute('tabindex', '0'); 
 
         const faqAnswer = document.createElement('p');
         faqAnswer.textContent = itemData.a;
         faqAnswer.setAttribute('id', `faq-answer-${index}`);
         faqAnswer.setAttribute('role', 'region');
         faqAnswer.setAttribute('aria-labelledby', `faq-question-${index}`);
+        // Initially hide the answer for screen readers
+        faqAnswer.setAttribute('hidden', 'true'); 
 
         faqItem.appendChild(faqQuestion);
         faqItem.appendChild(faqAnswer);
         faqList.appendChild(faqItem);
 
-        faqQuestion.addEventListener('click', () => {
-          const isCurrentlyActive = faqQuestion.classList.contains('active');
-          
-          // Close all other FAQ items
-          faqList.querySelectorAll('.faq-item h3').forEach(otherToggle => {
-            if (otherToggle !== faqQuestion) {
-              otherToggle.classList.remove('active');
-              otherToggle.setAttribute('aria-expanded', 'false');
-              otherToggle.nextElementSibling.classList.remove('active');
-            }
-          });
+        // Toggle function for FAQ
+        const toggleFaq = () => {
+            const isCurrentlyActive = faqQuestion.classList.contains('active');
+            
+            // Close all other FAQ items
+            faqList.querySelectorAll('.faq-item h3').forEach(otherToggle => {
+                if (otherToggle !== faqQuestion) {
+                    otherToggle.classList.remove('active');
+                    otherToggle.setAttribute('aria-expanded', 'false');
+                    otherToggle.nextElementSibling.classList.remove('active');
+                    otherToggle.nextElementSibling.setAttribute('hidden', 'true'); // Hide content
+                }
+            });
 
-          // Toggle current item
-          if (isCurrentlyActive) {
-            faqQuestion.classList.remove('active');
-            faqQuestion.setAttribute('aria-expanded', 'false');
-            faqAnswer.classList.remove('active');
-          } else {
-            faqQuestion.classList.add('active');
-            faqQuestion.setAttribute('aria-expanded', 'true');
-            faqAnswer.classList.add('active');
-          }
+            // Toggle current item
+            if (isCurrentlyActive) {
+                faqQuestion.classList.remove('active');
+                faqQuestion.setAttribute('aria-expanded', 'false');
+                faqAnswer.classList.remove('active');
+                faqAnswer.setAttribute('hidden', 'true'); // Hide content
+            } else {
+                faqQuestion.classList.add('active');
+                faqQuestion.setAttribute('aria-expanded', 'true');
+                faqAnswer.classList.add('active');
+                faqAnswer.removeAttribute('hidden'); // Show content
+            }
+        };
+
+        faqQuestion.addEventListener('click', toggleFaq);
+        // Add keyboard support for Space and Enter keys
+        faqQuestion.addEventListener('keydown', (event) => {
+            if (event.key === ' ' || event.key === 'Enter') {
+                event.preventDefault(); // Prevent default scroll for spacebar
+                toggleFaq();
+            }
         });
       });
 
@@ -965,6 +992,7 @@
         clearInputBtn.style.display = videoLinkInput.value ? 'flex' : 'none'; // use flex for icon centering
         if (videoLinkInput.value) {
           inputErrorMsg.style.display = 'none'; // Hide error when user types
+          videoLinkInput.classList.remove('input-shake'); // Remove shake if user types
         }
       });
 
@@ -972,42 +1000,91 @@
         videoLinkInput.value = '';
         clearInputBtn.style.display = 'none';
         inputErrorMsg.style.display = 'none';
+        videoLinkInput.classList.remove('input-shake');
         videoLinkInput.focus();
       });
 
       // Back to Top Button
       const backToTopBtn = document.getElementById('backToTopBtn');
-      window.addEventListener('scroll', () => {
+      // Debounce function for scroll events
+      const debounce = (func, delay) => {
+        let timeout;
+        return function(...args) {
+          const context = this;
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+      };
+
+      const handleScroll = () => {
         if (window.pageYOffset > 300) {
           backToTopBtn.classList.add('show');
         } else {
           backToTopBtn.classList.remove('show');
         }
-      });
-      backToTopBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
 
-      // ScrollSpy for Navbar
-      const sections = document.querySelectorAll('main section[id][aria-labelledby]'); // Target sections with IDs meant for nav
-      const navLinks = document.querySelectorAll('header .site-navbar a');
-      const headerHeight = document.querySelector('header').offsetHeight;
-
-      window.addEventListener('scroll', () => {
+        // ScrollSpy logic moved here for debounced execution
         let currentSectionId = '';
         sections.forEach(section => {
-          const sectionTop = section.offsetTop - headerHeight - 50; // 50px offset for activation
-          if (pageYOffset >= sectionTop) {
+          const sectionTop = section.offsetTop - headerHeight - 50; 
+          // Check if the section is in view, allowing for a slight offset
+          if (pageYOffset >= sectionTop && pageYOffset < sectionTop + section.offsetHeight) {
             currentSectionId = section.getAttribute('id');
           }
         });
 
         navLinks.forEach(link => {
           link.classList.remove('active');
-          // Ensure link.getAttribute('href') is not null and is a string
+          link.removeAttribute('aria-current'); // Remove aria-current from non-active links
           const href = link.getAttribute('href');
           if (href && href.substring(1) === currentSectionId) {
             link.classList.add('active');
+            link.setAttribute('aria-current', 'page'); // Indicate current page
+          }
+        });
+
+        // Update URL hash without page jump for current section
+        if (currentSectionId && window.location.hash !== '#' + currentSectionId) {
+            // Check if current hash is not the active section's id
+            history.replaceState(null, null, '#' + currentSectionId);
+        } else if (!currentSectionId && window.location.hash !== '') {
+            // Clear hash if no section is active (e.g., at the very top)
+            history.replaceState(null, null, window.location.pathname);
+        }
+      };
+
+      window.addEventListener('scroll', debounce(handleScroll, 100)); // Debounce scroll event
+
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // After scrolling to top, clear hash if any
+        history.replaceState(null, null, window.location.pathname + window.location.search);
+      });
+
+      // ScrollSpy for Navbar
+      const sections = document.querySelectorAll('main section[id][aria-labelledby]'); 
+      const navLinks = document.querySelectorAll('header .site-navbar a');
+      const headerHeight = document.querySelector('header').offsetHeight;
+
+      // Handle navigation clicks to scroll and focus
+      navLinks.forEach(link => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          const targetId = link.getAttribute('href').substring(1);
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            const offsetTop = targetSection.offsetTop - headerHeight - 20; // Adjust scroll position
+            window.scrollTo({
+              top: offsetTop,
+              behavior: 'smooth'
+            });
+            // Update URL hash
+            history.pushState(null, null, '#' + targetId);
+            // After scroll, ensure the section is focused for accessibility
+            // A small delay ensures the scroll is complete before focusing
+            setTimeout(() => {
+                targetSection.focus();
+            }, 500); 
           }
         });
       });
@@ -1019,6 +1096,7 @@
         const mouseY = e.clientY;
         
         glows.forEach((glow, index) => {
+          // Adjust sensitivity based on index to create a layered parallax effect
           const moveX = (mouseX - window.innerWidth / 2) / (30 + index * 15); 
           const moveY = (mouseY - window.innerHeight / 2) / (30 + index * 15);
           glow.style.transform = `translate(${moveX}px, ${moveY}px)`;
@@ -1044,10 +1122,7 @@
       // Basic URL validation (very simple)
       try {
         new URL(videoURL); // Check if it's a valid URL structure
-        if (!videoURL.toLowerCase().includes("youtube.com/") && !videoURL.toLowerCase().includes("youtu.be/")) {
-            // Allow other services as per features, so this check might be too strict
-            // For now, we let the API handle specific URL validation
-        }
+        // No strict YouTube check here to allow "Multi-Service Support" as stated in features
       } catch (_) {
         inputErrorMsg.textContent = "Please enter a valid video URL.";
         inputErrorMsg.style.display = 'block';
@@ -1069,34 +1144,40 @@
       
       // Ensure iframe resizer is available or wait for it
       const createIframe = () => {
-          const encodedURL = "aHR0cHM6Ly9idXlsaW50LmNvbS96azIzYXM4ej9rZXk9OGY0OTE0MDdkZTYzOGMwM2NlNTVjMDgyOTRmYjg0MDY="; // This seems to be a redirect/ad link
-          const redirectURL = atob(encodedURL); // Not directly used for iframe src
-          const encodedAPIURL = "aHR0cHM6Ly9wLm9jZWFuc2F2ZXIuaW4vYXBpL2NhcmQyLz91cmw9";
+          // Original obfuscated URLs - for demonstration, actual implementation depends on server-side
+          // NOTE: Client-side obfuscation (atob) offers no real security.
+          const encodedAPIURL = "aHR0cHM6Ly9wLm9jZWFuc2F2ZXIuaW4vYXBpL2NhcmQyLz91cmw9"; // API endpoint
           const apiURL = atob(encodedAPIURL); 
           
           const iframe = document.createElement("iframe");
           iframe.setAttribute("class", "api-iframe");
           iframe.setAttribute("scrolling", "no");
           iframe.setAttribute("allowtransparency", "true");
-          iframe.setAttribute("style", "border:none; width:100%; min-height:300px; display:block;"); // Ensure initial display
+          iframe.setAttribute("style", "border:none; width:100%; min-height:300px; display:block;"); 
           iframe.setAttribute("src", apiURL + encodeURIComponent(videoURL));
-          iframe.setAttribute("title", "Video Download Options"); // Accessibility
-          iframe.setAttribute("rel", "noopener noreferrer"); // Security for external content
-          
+          iframe.setAttribute("title", "Video Download Options"); 
+          iframe.setAttribute("rel", "noopener noreferrer"); 
+          iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-forms"); // Added sandbox for security, adjust as needed by API
+
           apiContainer.innerHTML = ''; // Clear loading animation
           apiContainer.appendChild(iframe);
           
-          const scrollTarget = apiContainer.getBoundingClientRect().top + window.scrollY - (document.querySelector('header').offsetHeight + 20);
+          const headerOffset = document.querySelector('header').offsetHeight;
+          const scrollTarget = apiContainer.getBoundingClientRect().top + window.scrollY - (headerOffset + 20);
           window.scrollTo({ top: scrollTarget, behavior: "smooth" });
           
+          // Initialize iframe-resizer
           if (typeof iFrameResize !== "undefined") {
-            iFrameResize({ log: false, checkOrigin: false }, ".api-iframe"); // checkOrigin: false if API domain is different
+            // Delay iframeResize initialization slightly to ensure iframe is fully rendered
+            setTimeout(() => {
+                iFrameResize({ log: false, checkOrigin: false }, ".api-iframe"); 
+            }, 100);
           } else {
             console.warn("iFrameResize not loaded. Iframe might not resize correctly.");
           }
       };
 
-      // Small delay to ensure DOM update for loading animation before iframe creation blocks rendering
+      // Small delay to ensure DOM update for loading animation before iframe creation
       setTimeout(createIframe, 100);
     }
   </script>
