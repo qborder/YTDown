@@ -28,7 +28,7 @@
       --accent-color: #e91e63;
       --accent-hover: #c2185b;
       --card-border: rgba(255, 255, 255, 0.08);
-      --mica-bg: rgba(30, 30, 30, 0.8);
+      --mica-bg: rgba(30, 30, 30, 0.8); /* Reduced alpha for nav overlay */
       --mica-secondary: rgba(45, 45, 45, 0.5);
       --shadow-color: rgba(0, 0, 0, 0.3);
       --error-color: #ff5252;
@@ -47,21 +47,18 @@
     }
 
     body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacMacFont, Roboto, Arial, sans-serif;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
       font-size: 1em;
       line-height: 1.6;
       background-color: var(--bg-primary);
       color: var(--text-primary);
       overflow-x: hidden;
-      /* Removed redundant role="document" from body */
     }
 
     h1, h2, h3 {
       color: var(--text-primary);
       font-weight: 600;
       letter-spacing: 0.5px;
-      /* Added text-wrap for better heading line breaking on modern browsers */
-      text-wrap: balance; 
     }
 
     p, ul, ol, li {
@@ -84,28 +81,36 @@
       padding: 0 20px;
     }
 
+    /* Accessibility: Sr-only class */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
     /* Focus visible styles for accessibility */
     *:focus-visible {
         outline: 2px solid var(--accent-color);
         outline-offset: 2px;
         box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.3);
     }
-    /* Custom focus styles for input and buttons, ensuring they override default outline */
+    /* Remove default outline if custom focus is prominent enough */
     .input-container input:focus,
     .input-container button.download-btn:focus,
     .clear-input-btn:focus,
-    #backToTopBtn:focus {
+    #backToTopBtn:focus,
+    .mobile-nav-toggle:focus { /* Added mobile toggle */
         outline: none; /* Custom focus handles this */
-        /* Re-apply custom box-shadow for specific elements if they need unique focus styles */
-        box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-color); 
     }
-    /* Ensure the general focus-visible applies to links and other elements if not specifically overridden */
-    header .site-navbar a:focus-visible,
-    footer a:focus-visible,
-    .faq-item h3:focus-visible {
-        outline: 2px solid var(--accent-color);
-        outline-offset: 2px;
-        box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.3);
+    .clear-input-btn:focus-visible {
+        color: var(--accent-color);
+        /* box-shadow: none; /* Removed: Let global focus-visible apply its shadow */
     }
 
 
@@ -113,7 +118,7 @@
     header {
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 100; /* Lower than mobile nav toggle when active */
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       background: var(--mica-bg);
@@ -162,18 +167,41 @@
     header .site-navbar a::after {
       content: '';
       position: absolute;
-      width: 0;
+      width: 100%;
       height: 2px;
       bottom: 0;
       left: 0;
       background: linear-gradient(90deg, var(--accent-color), #7c4dff);
-      transition: width 0.3s ease;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
     }
 
     header .site-navbar a:hover::after,
     header .site-navbar a.active::after {
-      width: 100%;
+      transform: scaleX(1);
     }
+
+    /* Mobile Navigation Toggle */
+    .mobile-nav-toggle {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.5em;
+      cursor: pointer;
+      padding: 10px;
+      z-index: 1001; /* Above everything */
+    }
+    .mobile-nav-toggle .fa-times { display: none; }
+    .mobile-nav-toggle.active .fa-bars { display: none; }
+    .mobile-nav-toggle.active .fa-times { display: inline-block; }
+
+    .mobile-nav-toggle:focus-visible { /* Custom focus for toggle */
+        color: var(--accent-color);
+        box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-color);
+    }
+
 
     /* Main content area */
     main {
@@ -246,7 +274,7 @@
     .input-container input:focus {
       background-color: rgba(255, 255, 255, 0.12);
       border-color: var(--accent-color);
-      /* Custom focus ring handled by input-container input:focus selector above */
+      box-shadow: 0 0 0 2px var(--accent-color); /* Focus ring */
     }
 
     .clear-input-btn {
@@ -266,7 +294,6 @@
     .clear-input-btn:hover {
         color: var(--text-primary);
     }
-     /* Focus-visible applies to this button as well via the general rule */
 
 
     .input-container button.download-btn {
@@ -283,14 +310,25 @@
       cursor: pointer;
       box-shadow: 0 4px 12px var(--shadow-color);
       transition: all 0.3s ease;
+      display: inline-flex; /* For aligning icon and text */
+      align-items: center;
+      justify-content: center;
+    }
+    .input-container button.download-btn .fa-spinner {
+        margin-right: 8px;
     }
 
-    .input-container button.download-btn:hover {
+    .input-container button.download-btn:hover:not(:disabled) {
       box-shadow: 0 6px 16px rgba(233, 30, 99, 0.4);
       transform: translateY(-2px);
     }
-    /* Focus for download button handled by input-container button.download-btn:focus selector above */
-
+    .input-container button.download-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    .input-container button.download-btn:focus {
+        box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-color); /* Custom focus ring */
+    }
 
     .input-error {
         width: 100%;
@@ -332,7 +370,7 @@
     }
 
     .api-container iframe {
-      width: 100% !important;
+      width: 100% !important; /* Important if iframe tries to set its own width */
       min-height: 300px;
       border: none;
       display: block;
@@ -392,9 +430,9 @@
     .content-section {
       margin: 80px 0;
     }
-    /* Removed specific :focus outline as general focus-visible covers it, or specific elements need their own */
-    .content-section[tabindex="-1"]:focus { 
-        outline: none; 
+    .content-section[tabindex="-1"]:focus { /* For programmatic focus on nav click */
+        outline: none; /* Don't show outline on section focus, global :focus-visible will still apply if not overridden */
+         /* If you want section to have the global focus visible style, remove this rule or make it more specific */
     }
 
 
@@ -539,8 +577,6 @@
       position: relative;
       cursor: pointer;
       transition: background-color 0.2s ease;
-      /* Ensure h3 is focusable as it's a toggle button */
-      tab-index: 0; /* Make it tabbable */
     }
      .faq-item h3:hover {
         background-color: rgba(255,255,255,0.05);
@@ -638,7 +674,7 @@
       box-shadow: 0 4px 12px var(--shadow-color);
       opacity: 0;
       transform: translateY(20px);
-      transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -649,11 +685,15 @@
       transform: translateY(0);
       pointer-events: auto;
     }
-    #backToTopBtn:hover {
+    #backToTopBtn:hover { /* Specificity for hover without !important */
       box-shadow: 0 6px 16px rgba(233, 30, 99, 0.4);
-      transform: translateY(-3px) !important; /* Ensure hover transform overrides .show */
     }
-    /* Focus for back to top button handled by #backToTopBtn:focus selector above */
+    #backToTopBtn.show:hover { /* More specific for combined state */
+        transform: translateY(-3px);
+    }
+    #backToTopBtn:focus-visible { /* Already specific and good */
+        box-shadow: 0 0 0 4px var(--accent-color);
+    }
 
 
     /* Media queries */
@@ -689,12 +729,44 @@
       .step-number { width: 38px; height: 38px; font-size: 1.1em; }
       .content-section h2 { font-size: 1.7em; }
 
-      /* For a full solution, a hamburger menu would be added here */
-      header .site-navbar { display: none; } /* Basic mobile: hide nav or implement burger */
+      /* Mobile Navigation */
+      .mobile-nav-toggle {
+        display: block;
+      }
+      header .site-navbar {
+        position: fixed;
+        inset: 0 0 0 30%; /* Slide in from right. Adjust 30% for width */
+        flex-direction: column;
+        padding: min(20vh, 8rem) 2em; /* Adjust padding */
+        gap: 2em;
+        background: var(--mica-bg);
+        backdrop-filter: blur(20px); /* Stronger blur for nav */
+        -webkit-backdrop-filter: blur(20px);
+        border-left: 1px solid var(--card-border);
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Added easing */
+        z-index: 1000; /* Below toggle, above content */
+      }
+      header .site-navbar[data-visible="true"] {
+        transform: translateX(0%);
+      }
+      header .site-navbar a {
+        font-size: 1.2em;
+        text-align: center;
+      }
+      header .site-navbar a::after { /* Center underline on mobile */
+          left: 50%;
+          transform-origin: center;
+          transform: scaleX(0) translateX(-50%);
+      }
+      header .site-navbar a:hover::after,
+      header .site-navbar a.active::after {
+          transform: scaleX(1) translateX(-50%);
+      }
     }
   </style>
 </head>
-<body>
+<body role="document">
   <!-- Decorative glowing backgrounds -->
   <div class="glow glow-1"></div>
   <div class="glow glow-2"></div>
@@ -703,12 +775,17 @@
   <header role="banner">
     <div class="header-container">
       <div class="site-title">
-        <a href="/" title="Go to homepage">ytdown.app</a>
+        <a href="#">ytdown.app</a>
       </div>
-      <nav class="site-navbar" aria-label="Main navigation">
-        <a href="#how-to-use" title="Learn how to use YTDown">How to use</a>
-        <a href="#features" title="Discover YTDown features">Features</a>
-        <a href="#faq" title="Frequently asked questions about YTDown">FAQ</a>
+      <button class="mobile-nav-toggle" aria-controls="primary-navigation" aria-expanded="false">
+        <span class="sr-only">Menu</span>
+        <i class="fas fa-bars" aria-hidden="true"></i>
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+      <nav class="site-navbar" id="primary-navigation" aria-label="Main navigation">
+        <a href="#how-to-use">How to use</a>
+        <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
       </nav>
     </div>
   </header>
@@ -728,10 +805,10 @@
               aria-describedby="inputErrorMsg"
             />
             <button type="button" id="clearInputBtn" class="clear-input-btn" aria-label="Clear input field" title="Clear input">
-              <i class="fas fa-times"></i>
+              <i class="fas fa-times" aria-hidden="true"></i>
             </button>
           </div>
-          <button onclick="convertVideo()" class="download-btn" aria-label="Download or process video link">Download</button>
+          <button id="mainDownloadBtn" class="download-btn" aria-label="Download or process video link">Download</button>
           <div id="inputErrorMsg" class="input-error" role="alert" aria-live="assertive"></div>
         </div>
       </section>
@@ -882,7 +959,7 @@
       <section class="content-section faq-section" id="faq" aria-labelledby="faq-heading" tabindex="-1">
         <h2 id="faq-heading">Frequently Asked Questions</h2>
         <div class="faq-list">
-          <!-- FAQ items will be dynamically loaded here by JS -->
+          <!-- FAQ items will be injected here by JS -->
         </div>
       </section>
     </div>
@@ -892,9 +969,9 @@
     <div class="footer-credits">
       <p>
         © <span id="year"></span>
-        <a href="/" title="Go to homepage">YTDown.app</a>
-        <a href="/terms-of-service" title="Read our Terms of Service">Terms of Service</a>
-        <a href="/privacy-policy" title="Read our Privacy Policy">Privacy Policy</a>
+        <a href="#">YTDown.app</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
       </p>
     </div>
   </footer>
@@ -910,6 +987,17 @@
       // Update current year
       document.getElementById("year").textContent = new Date().getFullYear();
 
+      // Hamburger Menu Toggle
+      const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+      const primaryNav = document.getElementById('primary-navigation');
+
+      mobileNavToggle.addEventListener('click', () => {
+        const isVisible = primaryNav.getAttribute('data-visible') === 'true';
+        primaryNav.setAttribute('data-visible', isVisible ? 'false' : 'true');
+        mobileNavToggle.setAttribute('aria-expanded', isVisible ? 'false' : 'true');
+        mobileNavToggle.classList.toggle('active'); // For icon switching
+      });
+      
       // FAQ Toggle functionality
       const faqItemsData = [
         { q: "Can I download unlimited videos?", a: "Yes, you can download unlimited videos. There are no restrictions on the number of videos you can save for offline viewing." },
@@ -920,172 +1008,147 @@
       ];
 
       const faqList = document.querySelector('.faq-list');
-      faqItemsData.forEach((itemData, index) => {
-        const faqItem = document.createElement('div');
-        faqItem.className = 'faq-item';
+      if (faqList) { // Ensure faqList exists
+        faqItemsData.forEach((itemData, index) => {
+          const faqItem = document.createElement('div');
+          faqItem.className = 'faq-item';
 
-        const faqQuestion = document.createElement('h3');
-        faqQuestion.textContent = itemData.q;
-        faqQuestion.setAttribute('aria-expanded', 'false');
-        faqQuestion.setAttribute('aria-controls', `faq-answer-${index}`);
-        faqQuestion.setAttribute('id', `faq-question-${index}`);
-        // Make the h3 tag keyboard focusable for accessibility
-        faqQuestion.setAttribute('tabindex', '0'); 
+          const faqQuestion = document.createElement('h3');
+          faqQuestion.textContent = itemData.q;
+          faqQuestion.setAttribute('aria-expanded', 'false');
+          faqQuestion.setAttribute('aria-controls', `faq-answer-${index}`);
+          faqQuestion.setAttribute('id', `faq-question-${index}`);
 
-        const faqAnswer = document.createElement('p');
-        faqAnswer.textContent = itemData.a;
-        faqAnswer.setAttribute('id', `faq-answer-${index}`);
-        faqAnswer.setAttribute('role', 'region');
-        faqAnswer.setAttribute('aria-labelledby', `faq-question-${index}`);
-        // Initially hide the answer for screen readers
-        faqAnswer.setAttribute('hidden', 'true'); 
+          const faqAnswer = document.createElement('p');
+          faqAnswer.textContent = itemData.a;
+          faqAnswer.setAttribute('id', `faq-answer-${index}`);
+          faqAnswer.setAttribute('role', 'region');
+          faqAnswer.setAttribute('aria-labelledby', `faq-question-${index}`);
 
-        faqItem.appendChild(faqQuestion);
-        faqItem.appendChild(faqAnswer);
-        faqList.appendChild(faqItem);
+          faqItem.appendChild(faqQuestion);
+          faqItem.appendChild(faqAnswer);
+          faqList.appendChild(faqItem);
 
-        // Toggle function for FAQ
-        const toggleFaq = () => {
+          faqQuestion.addEventListener('click', () => {
             const isCurrentlyActive = faqQuestion.classList.contains('active');
             
             // Close all other FAQ items
             faqList.querySelectorAll('.faq-item h3').forEach(otherToggle => {
-                if (otherToggle !== faqQuestion) {
-                    otherToggle.classList.remove('active');
-                    otherToggle.setAttribute('aria-expanded', 'false');
+              if (otherToggle !== faqQuestion) {
+                otherToggle.classList.remove('active');
+                otherToggle.setAttribute('aria-expanded', 'false');
+                if (otherToggle.nextElementSibling) {
                     otherToggle.nextElementSibling.classList.remove('active');
-                    otherToggle.nextElementSibling.setAttribute('hidden', 'true'); // Hide content
                 }
+              }
             });
 
             // Toggle current item
             if (isCurrentlyActive) {
-                faqQuestion.classList.remove('active');
-                faqQuestion.setAttribute('aria-expanded', 'false');
-                faqAnswer.classList.remove('active');
-                faqAnswer.setAttribute('hidden', 'true'); // Hide content
+              faqQuestion.classList.remove('active');
+              faqQuestion.setAttribute('aria-expanded', 'false');
+              faqAnswer.classList.remove('active');
             } else {
-                faqQuestion.classList.add('active');
-                faqQuestion.setAttribute('aria-expanded', 'true');
-                faqAnswer.classList.add('active');
-                faqAnswer.removeAttribute('hidden'); // Show content
+              faqQuestion.classList.add('active');
+              faqQuestion.setAttribute('aria-expanded', 'true');
+              faqAnswer.classList.add('active');
             }
-        };
-
-        faqQuestion.addEventListener('click', toggleFaq);
-        // Add keyboard support for Space and Enter keys
-        faqQuestion.addEventListener('keydown', (event) => {
-            if (event.key === ' ' || event.key === 'Enter') {
-                event.preventDefault(); // Prevent default scroll for spacebar
-                toggleFaq();
-            }
+          });
         });
-      });
+      }
 
 
       // Input field clear button and error handling
       const videoLinkInput = document.getElementById("videoLinkInput");
       const clearInputBtn = document.getElementById("clearInputBtn");
       const inputErrorMsg = document.getElementById("inputErrorMsg");
+      const mainDownloadBtn = document.getElementById("mainDownloadBtn"); // Get the main download button
+      const originalDownloadBtnHTML = mainDownloadBtn ? mainDownloadBtn.innerHTML : "Download"; // Store original HTML
 
-      videoLinkInput.addEventListener('input', () => {
-        clearInputBtn.style.display = videoLinkInput.value ? 'flex' : 'none'; // use flex for icon centering
-        if (videoLinkInput.value) {
-          inputErrorMsg.style.display = 'none'; // Hide error when user types
-          videoLinkInput.classList.remove('input-shake'); // Remove shake if user types
-        }
-      });
+      if (videoLinkInput) {
+        videoLinkInput.addEventListener('input', () => {
+          if (clearInputBtn) clearInputBtn.style.display = videoLinkInput.value ? 'flex' : 'none';
+          if (videoLinkInput.value && inputErrorMsg) {
+            inputErrorMsg.style.display = 'none';
+          }
+        });
+      }
+      if (clearInputBtn) {
+        clearInputBtn.addEventListener('click', () => {
+          if (videoLinkInput) videoLinkInput.value = '';
+          clearInputBtn.style.display = 'none';
+          if (inputErrorMsg) inputErrorMsg.style.display = 'none';
+          if (videoLinkInput) videoLinkInput.focus();
+        });
+      }
+      // Attach convertVideo to the button via JS
+      if (mainDownloadBtn) {
+        mainDownloadBtn.addEventListener('click', convertVideo);
+      }
 
-      clearInputBtn.addEventListener('click', () => {
-        videoLinkInput.value = '';
-        clearInputBtn.style.display = 'none';
-        inputErrorMsg.style.display = 'none';
-        videoLinkInput.classList.remove('input-shake');
-        videoLinkInput.focus();
-      });
 
       // Back to Top Button
       const backToTopBtn = document.getElementById('backToTopBtn');
-      // Debounce function for scroll events
-      const debounce = (func, delay) => {
-        let timeout;
-        return function(...args) {
-          const context = this;
-          clearTimeout(timeout);
-          timeout = setTimeout(() => func.apply(context, args), delay);
-        };
-      };
+      if (backToTopBtn) {
+        window.addEventListener('scroll', () => {
+          if (window.pageYOffset > 300) {
+            backToTopBtn.classList.add('show');
+          } else {
+            backToTopBtn.classList.remove('show');
+          }
+        });
+        backToTopBtn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
 
-      const handleScroll = () => {
-        if (window.pageYOffset > 300) {
-          backToTopBtn.classList.add('show');
-        } else {
-          backToTopBtn.classList.remove('show');
-        }
+      // ScrollSpy for Navbar & Nav Link Click Handling
+      const sections = document.querySelectorAll('main section[id][aria-labelledby]');
+      const navLinks = document.querySelectorAll('header .site-navbar a');
+      const headerEl = document.querySelector('header');
+      const headerHeight = headerEl ? headerEl.offsetHeight : 70;
 
-        // ScrollSpy logic moved here for debounced execution
+      function updateActiveNavLink() {
         let currentSectionId = '';
         sections.forEach(section => {
-          const sectionTop = section.offsetTop - headerHeight - 50; 
-          // Check if the section is in view, allowing for a slight offset
-          if (pageYOffset >= sectionTop && pageYOffset < sectionTop + section.offsetHeight) {
+          const sectionTop = section.offsetTop - headerHeight - 50; // 50px offset
+          if (pageYOffset >= sectionTop) {
             currentSectionId = section.getAttribute('id');
           }
         });
 
         navLinks.forEach(link => {
           link.classList.remove('active');
-          link.removeAttribute('aria-current'); // Remove aria-current from non-active links
           const href = link.getAttribute('href');
           if (href && href.substring(1) === currentSectionId) {
             link.classList.add('active');
-            link.setAttribute('aria-current', 'page'); // Indicate current page
           }
         });
+      }
+      window.addEventListener('scroll', updateActiveNavLink);
+      updateActiveNavLink(); // Initial check
 
-        // Update URL hash without page jump for current section
-        if (currentSectionId && window.location.hash !== '#' + currentSectionId) {
-            // Check if current hash is not the active section's id
-            history.replaceState(null, null, '#' + currentSectionId);
-        } else if (!currentSectionId && window.location.hash !== '') {
-            // Clear hash if no section is active (e.g., at the very top)
-            history.replaceState(null, null, window.location.pathname);
-        }
-      };
-
-      window.addEventListener('scroll', debounce(handleScroll, 100)); // Debounce scroll event
-
-      backToTopBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        // After scrolling to top, clear hash if any
-        history.replaceState(null, null, window.location.pathname + window.location.search);
-      });
-
-      // ScrollSpy for Navbar
-      const sections = document.querySelectorAll('main section[id][aria-labelledby]'); 
-      const navLinks = document.querySelectorAll('header .site-navbar a');
-      const headerHeight = document.querySelector('header').offsetHeight;
-
-      // Handle navigation clicks to scroll and focus
       navLinks.forEach(link => {
-        link.addEventListener('click', (event) => {
-          event.preventDefault();
-          const targetId = link.getAttribute('href').substring(1);
-          const targetSection = document.getElementById(targetId);
-          if (targetSection) {
-            const offsetTop = targetSection.offsetTop - headerHeight - 20; // Adjust scroll position
-            window.scrollTo({
-              top: offsetTop,
-              behavior: 'smooth'
-            });
-            // Update URL hash
-            history.pushState(null, null, '#' + targetId);
-            // After scroll, ensure the section is focused for accessibility
-            // A small delay ensures the scroll is complete before focusing
-            setTimeout(() => {
-                targetSection.focus();
-            }, 500); 
-          }
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                const targetId = href.substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    // Focus the target section for accessibility after scroll
+                    // setTimeout is a workaround for some browsers where focus might be lost during smooth scroll
+                    setTimeout(() => {
+                        targetElement.focus({ preventScroll: true }); // preventScroll if browser also tries to scroll on focus
+                    }, 0); // Adjust delay if needed, 0 usually works with smooth scroll
+
+                    // Close mobile nav if open
+                    if (primaryNav.getAttribute('data-visible') === 'true') {
+                        primaryNav.setAttribute('data-visible', 'false');
+                        mobileNavToggle.setAttribute('aria-expanded', 'false');
+                        mobileNavToggle.classList.remove('active');
+                    }
+                }
+            }
         });
       });
       
@@ -1096,7 +1159,6 @@
         const mouseY = e.clientY;
         
         glows.forEach((glow, index) => {
-          // Adjust sensitivity based on index to create a layered parallax effect
           const moveX = (mouseX - window.innerWidth / 2) / (30 + index * 15); 
           const moveY = (mouseY - window.innerHeight / 2) / (30 + index * 15);
           glow.style.transform = `translate(${moveX}px, ${moveY}px)`;
@@ -1105,80 +1167,110 @@
 
     }); // End DOMContentLoaded
 
-    // Video conversion function (Global scope as it's called by onclick)
+    // Video conversion function
     function convertVideo() {
       const videoLinkInput = document.getElementById("videoLinkInput");
       const videoURL = videoLinkInput.value.trim();
       const inputErrorMsg = document.getElementById("inputErrorMsg");
+      const mainDownloadBtn = document.getElementById("mainDownloadBtn");
+      const originalBtnHTML = "Download"; // Simpler to hardcode or retrieve from a data-attribute
+
+      function showError(message) {
+        if (inputErrorMsg) {
+            inputErrorMsg.textContent = message;
+            inputErrorMsg.style.display = 'block';
+        }
+        if (videoLinkInput) {
+            videoLinkInput.classList.add('input-shake');
+            setTimeout(() => videoLinkInput.classList.remove('input-shake'), 500);
+            videoLinkInput.focus();
+        }
+        if (mainDownloadBtn) {
+            mainDownloadBtn.innerHTML = originalBtnHTML;
+            mainDownloadBtn.disabled = false;
+        }
+      }
       
       if (videoURL === "") {
-        inputErrorMsg.textContent = "Please paste a YouTube video link first.";
-        inputErrorMsg.style.display = 'block';
-        videoLinkInput.classList.add('input-shake');
-        setTimeout(() => videoLinkInput.classList.remove('input-shake'), 500);
-        videoLinkInput.focus();
+        showError("Please paste a video link first.");
         return;
       }
-      // Basic URL validation (very simple)
+      
       try {
-        new URL(videoURL); // Check if it's a valid URL structure
-        // No strict YouTube check here to allow "Multi-Service Support" as stated in features
+        const parsedUrl = new URL(videoURL);
+        if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+            throw new Error("URL must use http or https protocol.");
+        }
       } catch (_) {
-        inputErrorMsg.textContent = "Please enter a valid video URL.";
-        inputErrorMsg.style.display = 'block';
-        videoLinkInput.classList.add('input-shake');
-        setTimeout(() => videoLinkInput.classList.remove('input-shake'), 500);
-        videoLinkInput.focus();
+        showError("Please enter a valid video URL (e.g., https://...).");
         return;
       }
-      inputErrorMsg.style.display = 'none'; // Clear error on successful start
+      
+      if (inputErrorMsg) inputErrorMsg.style.display = 'none';
+      if (mainDownloadBtn) {
+        mainDownloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Processing...`;
+        mainDownloadBtn.disabled = true;
+      }
       
       const apiContainer = document.getElementById("apiContainer");
-      apiContainer.innerHTML = `
-        <div class="loading-animation">
-          <div class="spinner">
-            <div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div>
-          </div>
-          <p>Processing your request, please hang tight...</p>
-        </div>`;
+      if (apiContainer) {
+        apiContainer.innerHTML = `
+          <div class="loading-animation" aria-live="assertive">
+            <div class="spinner" role="status">
+              <div class="bounce1" aria-hidden="true"></div><div class="bounce2" aria-hidden="true"></div><div class="bounce3" aria-hidden="true"></div>
+              <span class="sr-only">Loading video options...</span>
+            </div>
+            <p>Processing your request, please hang tight...</p>
+          </div>`;
+      }
       
-      // Ensure iframe resizer is available or wait for it
       const createIframe = () => {
-          // Original obfuscated URLs - for demonstration, actual implementation depends on server-side
-          // NOTE: Client-side obfuscation (atob) offers no real security.
-          const encodedAPIURL = "aHR0cHM6Ly9wLm9jZWFuc2F2ZXIuaW4vYXBpL2NhcmQyLz91cmw9"; // API endpoint
+          const encodedAPIURL = "aHR0cHM6Ly9wLm9jZWFuc2F2ZXIuaW4vYXBpL2NhcmQyLz91cmw9"; // p.oceansaver.in
           const apiURL = atob(encodedAPIURL); 
           
           const iframe = document.createElement("iframe");
           iframe.setAttribute("class", "api-iframe");
           iframe.setAttribute("scrolling", "no");
           iframe.setAttribute("allowtransparency", "true");
-          iframe.setAttribute("style", "border:none; width:100%; min-height:300px; display:block;"); 
+          iframe.setAttribute("style", "border:none; width:100%; min-height:300px; display:block;");
           iframe.setAttribute("src", apiURL + encodeURIComponent(videoURL));
-          iframe.setAttribute("title", "Video Download Options"); 
-          iframe.setAttribute("rel", "noopener noreferrer"); 
-          iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-forms"); // Added sandbox for security, adjust as needed by API
+          iframe.setAttribute("title", "Video Download Options");
+          iframe.setAttribute("rel", "noopener noreferrer"); // Security for external content
+          
+          iframe.onload = () => {
+            if (mainDownloadBtn) {
+                mainDownloadBtn.innerHTML = originalBtnHTML;
+                mainDownloadBtn.disabled = false;
+            }
+            if (typeof iFrameResize !== "undefined") {
+                iFrameResize({ log: false, checkOrigin: false }, ".api-iframe");
+            } else {
+                console.warn("iFrameResize not loaded. Iframe might not resize correctly.");
+            }
+          };
+          iframe.onerror = () => {
+            if (mainDownloadBtn) {
+                mainDownloadBtn.innerHTML = originalBtnHTML;
+                mainDownloadBtn.disabled = false;
+            }
+            if(apiContainer) {
+                apiContainer.innerHTML = '<p class="input-error" style="display:block; text-align:center;">Failed to load video options. The service might be temporarily unavailable or the URL is not supported. Please try again later or use a different URL.</p>';
+            }
+          };
 
-          apiContainer.innerHTML = ''; // Clear loading animation
-          apiContainer.appendChild(iframe);
+          if (apiContainer) {
+            apiContainer.innerHTML = ''; // Clear loading animation
+            apiContainer.appendChild(iframe);
           
-          const headerOffset = document.querySelector('header').offsetHeight;
-          const scrollTarget = apiContainer.getBoundingClientRect().top + window.scrollY - (headerOffset + 20);
-          window.scrollTo({ top: scrollTarget, behavior: "smooth" });
-          
-          // Initialize iframe-resizer
-          if (typeof iFrameResize !== "undefined") {
-            // Delay iframeResize initialization slightly to ensure iframe is fully rendered
-            setTimeout(() => {
-                iFrameResize({ log: false, checkOrigin: false }, ".api-iframe"); 
-            }, 100);
-          } else {
-            console.warn("iFrameResize not loaded. Iframe might not resize correctly.");
+            const headerEl = document.querySelector('header');
+            const headerHeight = headerEl ? headerEl.offsetHeight : 70; // Fallback header height
+            const scrollTarget = apiContainer.getBoundingClientRect().top + window.scrollY - (headerHeight + 20);
+            window.scrollTo({ top: scrollTarget, behavior: "smooth" });
           }
       };
 
-      // Small delay to ensure DOM update for loading animation before iframe creation
-      setTimeout(createIframe, 100);
+      // Small delay to ensure DOM update for loading animation
+      setTimeout(createIframe, 200); // Increased delay slightly
     }
   </script>
 </body>
