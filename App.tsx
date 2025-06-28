@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { ApiResult } from './components/ApiResult';
@@ -9,10 +9,14 @@ import { Footer } from './components/Footer';
 import { BackToTopButton } from './components/BackToTopButton';
 import { GlowEffect } from './components/GlowEffect';
 import { FAQS, FEATURES, STEPS } from './constants';
+import { useAnimateOnScroll } from './useAnimateOnScroll';
 
 function MainDescription() {
+  const sectionRef = useRef<HTMLElement>(null);
+  useAnimateOnScroll(sectionRef);
+
   return (
-    <section className="max-w-3xl mx-auto my-24 px-5 text-center" aria-label="About YTDown">
+    <section ref={sectionRef} className="max-w-3xl mx-auto my-24 px-5 text-center animate-on-scroll" aria-label="About YTDown">
       <p className="mb-4 text-lg leading-relaxed text-text-secondary">
         YTDown simplifies saving online videos. Paste a link to get started.
       </p>
@@ -58,7 +62,7 @@ function App(): React.ReactNode {
     <>
       <GlowEffect />
       <Header />
-      <main role="main" className="container mx-auto px-5 animate-fade-in">
+      <main role="main" className="container mx-auto px-5">
         <Hero onSubmit={handleUrlSubmit} error={error} setError={setError} isProcessing={isLoading} />
         
         {(isLoading || submittedUrl) && (

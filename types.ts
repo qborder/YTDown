@@ -8,6 +8,7 @@ export interface FeatureItem {
   icon: string;
   title: string;
   description: string;
+  subIcons?: string[];
 }
 
 export interface StepItem {

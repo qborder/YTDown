@@ -49,13 +49,13 @@ export function Hero({ onSubmit, error, setError, isProcessing }: HeroProps): Re
 
   return (
     <section className="text-center pt-20 pb-12 px-5 my-8" aria-labelledby="downloader-heading">
-      <h1 id="downloader-heading" className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-accent to-blue-400 bg-clip-text text-transparent">
+      <h1 id="downloader-heading" className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-accent to-blue-400 bg-clip-text text-transparent animate-fade-in-down" style={{ animationDuration: '0.6s' }}>
         YouTube Video Downloader
       </h1>
-      <p className="text-lg text-text-secondary mb-10">
+      <p className="text-lg text-text-secondary mb-10 animate-fade-in-down" style={{ animationDuration: '0.6s', animationDelay: '0.2s' }}>
         High quality video downloads up to 4K resolution for free
       </p>
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto animate-fade-in-up" style={{ animationDuration: '0.6s', animationDelay: '0.4s' }}>
         <div className="relative w-full">
           <div className={`relative flex items-center w-full bg-bg-secondary border ${error ? 'border-error' : 'border-card-border'} rounded-lg shadow-lg focus-within:ring-2 focus-within:ring-accent focus-within:shadow-md focus-within:shadow-accent/20 transition-all duration-300`}>
               <button

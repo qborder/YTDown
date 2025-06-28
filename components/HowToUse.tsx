@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { StepItem } from '../types';
+import { useAnimateOnScroll } from '../useAnimateOnScroll';
 
 interface StepCardProps {
   step: StepItem;
@@ -8,6 +9,7 @@ interface StepCardProps {
 
 const StepCard: React.FC<StepCardProps> = ({ step, index }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  useAnimateOnScroll(cardRef);
 
   useEffect(() => {
     const card = cardRef.current;
@@ -23,12 +25,18 @@ const StepCard: React.FC<StepCardProps> = ({ step, index }) => {
     card.addEventListener('mousemove', handleMouseMove);
 
     return () => {
-        card.removeEventListener('mousemove', handleMouseMove);
+        if (card) {
+            card.removeEventListener('mousemove', handleMouseMove);
+        }
     }
   }, []);
 
   return (
-    <div ref={cardRef} className="spotlight-card step-card flex flex-col bg-bg-secondary rounded-xl p-6 border border-card-border shadow-lg shadow-black/30 transition-all duration-300 hover:border-accent/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/20">
+    <div 
+      ref={cardRef} 
+      className="spotlight-card step-card flex flex-col bg-bg-secondary rounded-xl p-6 border border-card-border shadow-lg shadow-black/30 transition-all duration-300 hover:border-accent/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/20 animate-on-scroll"
+      style={{ '--animation-delay': `${index * 150}ms` } as React.CSSProperties}
+    >
       <div className="step-header flex items-center mb-4">
         <div className="step-number w-10 h-10 mr-4 flex items-center justify-center bg-accent text-white text-lg font-bold rounded-full shadow-md shadow-accent/20">
           {index + 1}
@@ -46,8 +54,11 @@ interface HowToUseProps {
 }
 
 export function HowToUse({ steps }: HowToUseProps): React.ReactNode {
+  const sectionRef = useRef<HTMLElement>(null);
+  useAnimateOnScroll(sectionRef);
+
   return (
-    <section id="how-to-use" className="steps-section max-w-3xl mx-auto my-24 px-5" aria-labelledby="how-to-use-heading" tabIndex={-1}>
+    <section ref={sectionRef} id="how-to-use" className="steps-section max-w-3xl mx-auto my-24 px-5 animate-on-scroll" aria-labelledby="how-to-use-heading" tabIndex={-1}>
       <h2 id="how-to-use-heading" className="text-3xl md:text-4xl font-bold text-center mb-12 bg-gradient-to-r from-accent to-blue-400 bg-clip-text text-transparent">
         How to Download Videos?
       </h2>

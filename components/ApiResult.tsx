@@ -5,14 +5,21 @@ interface ApiResultProps {
   isLoading: boolean;
 }
 
-const LoadingAnimation: React.FC = () => (
-  <div className="flex items-center justify-center p-8 h-full" aria-live="assertive">
-    <div className="flex space-x-2">
-      <div className="w-3 h-3 bg-accent rounded-full animate-pulse [animation-delay:-0.3s]"></div>
-      <div className="w-3 h-3 bg-accent rounded-full animate-pulse [animation-delay:-0.15s]"></div>
-      <div className="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
+const SkeletonLoader: React.FC = () => (
+  <div className="w-full p-6 animate-pulse" role="status">
+    <div className="flex flex-col sm:flex-row items-start gap-5 mb-6">
+      <div className="bg-slate-700/50 rounded-lg w-full sm:w-40 h-24 sm:h-[90px] flex-shrink-0"></div>
+      <div className="w-full pt-2">
+        <div className="h-5 bg-slate-700/50 rounded-full w-full mb-3"></div>
+        <div className="h-5 bg-slate-700/50 rounded-full w-3/4"></div>
+      </div>
     </div>
-    <span className="sr-only">Loading...</span>
+    <div className="space-y-4">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="h-12 bg-slate-700/50 rounded-lg w-full"></div>
+      ))}
+    </div>
+    <span className="sr-only">Loading results...</span>
   </div>
 );
 
@@ -53,11 +60,14 @@ export function ApiResult({ submittedUrl, isLoading }: ApiResultProps): React.Re
 
     const customCSS = `
       /* General styling */
-      body {
+      html, body {
         font-family: 'Inter', 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', 'sans-serif';
-        background-color: transparent !important;
+        background: transparent !important;
         color: #F5F5F5;
         margin: 0;
+      }
+      
+      body {
         padding: 1rem;
       }
       
@@ -68,7 +78,7 @@ export function ApiResult({ submittedUrl, isLoading }: ApiResultProps): React.Re
       
       /* The main container should be transparent */
       #card, .card {
-        background-color: transparent !important;
+        background: transparent !important;
         border: none !important;
         padding: 0 !important;
         box-shadow: none !important;
@@ -198,11 +208,11 @@ export function ApiResult({ submittedUrl, isLoading }: ApiResultProps): React.Re
   return (
     <section 
       ref={containerRef}
-      className="api-container max-w-3xl min-h-[150px] mx-auto my-8 bg-bg-secondary rounded-2xl border border-card-border shadow-lg shadow-black/30 overflow-hidden flex justify-center items-center transition-all duration-500 ease-in-out"
+      className="api-container max-w-3xl min-h-[260px] mx-auto my-8 bg-bg-secondary rounded-2xl border border-card-border shadow-lg shadow-black/30 overflow-hidden flex justify-center items-center transition-all duration-500 ease-in-out"
       aria-live="polite"
     >
       {isLoading ? (
-        <LoadingAnimation />
+        <SkeletonLoader />
       ) : (
         submittedUrl && <iframe
           ref={iframeRef}
