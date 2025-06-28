@@ -47,9 +47,149 @@ export function ApiResult({ submittedUrl, isLoading }: ApiResultProps): React.Re
       console.error("Error resizing iframe:", error);
     }
   };
+  
+  const buildIframeSrc = () => {
+    if (!submittedUrl) return '';
 
-  const encodedAPIURL = "aHR0cHM6Ly9wLm9jZWFuc2F2ZXIuaW4vYXBpL2NhcmQyLz91cmw9";
-  const apiURL = atob(encodedAPIURL);
+    const baseURL = "https://p.oceansaver.in/api/card2/";
+
+    const customCSS = `
+      /* General styling */
+      body {
+        font-family: 'Inter', 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', 'sans-serif';
+        background-color: transparent !important;
+        color: #F5F5F5;
+        margin: 0;
+        padding: 1rem;
+      }
+      
+      /* Hide unwanted elements */
+      .logo, .footer, h1, h2, p.text-center, #result > .text-center {
+          display: none !important;
+      }
+      
+      /* The main container should be transparent */
+      #card, .card {
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+      }
+
+      /* Video details section styling */
+      .media {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      @media (min-width: 640px) {
+        .media {
+          flex-direction: row;
+          text-align: left;
+          align-items: flex-start;
+        }
+      }
+      
+      .media img {
+        border-radius: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        max-width: 160px !important;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+      
+      .media-body h3, .media-body .h5 {
+        color: #F5F5F5 !important;
+        font-size: 1.1rem !important;
+        line-height: 1.4 !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
+      }
+      .media-body p {
+        color: #A3A3A3 !important;
+        font-size: 0.9rem !important;
+        margin-top: 0.25rem;
+      }
+
+      /* Table for formats styling */
+      table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 0.5rem !important;
+      }
+      
+      thead {
+        display: none !important;
+      }
+      
+      tbody tr {
+        background-color: #171717 !important;
+        transition: all 0.2s ease-in-out;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 8px !important;
+      }
+      
+      tbody tr:hover {
+        background-color: #272727 !important;
+        transform: translateY(-2px);
+        border-color: rgba(0, 169, 255, 0.3) !important;
+      }
+
+      td {
+        padding: 0.75rem 1rem !important;
+        vertical-align: middle !important;
+        color: #A3A3A3 !important;
+        border: none !important;
+      }
+      
+      td:first-child {
+        border-top-left-radius: 8px !important;
+        border-bottom-left-radius: 8px !important;
+        color: #F5F5F5 !important;
+        font-weight: 500;
+      }
+      td:last-child {
+        border-top-right-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+        text-align: right !important;
+      }
+      
+      /* Download button inside table */
+      td .btn, td a[download] {
+        display: inline-block !important;
+        padding: 0.6rem 1.1rem !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        color: #ffffff !important;
+        background-color: #00A9FF !important;
+        border: none !important;
+        border-radius: 6px !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+      }
+
+      td .btn:hover, td a[download]:hover {
+        background-color: #0087CC !important;
+        transform: scale(1.05);
+      }
+    `;
+
+    // Minify and Base64 encode the CSS
+    const minifiedCss = customCSS.replace(/\\s\\s+/g, ' ').trim();
+    const encodedCss = btoa(minifiedCss);
+    const cssDataUri = `data:text/css;base64,${encodedCss}`;
+
+    const params = new URLSearchParams({
+      url: submittedUrl,
+      css: cssDataUri
+    });
+
+    return `${baseURL}?${params.toString()}`;
+  };
+
+  const iframeSrc = buildIframeSrc();
 
   return (
     <section 
@@ -60,12 +200,12 @@ export function ApiResult({ submittedUrl, isLoading }: ApiResultProps): React.Re
       {isLoading ? (
         <LoadingAnimation />
       ) : (
-        <iframe
+        submittedUrl && <iframe
           ref={iframeRef}
           id="api-iframe"
           scrolling="no"
           allowTransparency={true}
-          src={`${apiURL}${encodeURIComponent(submittedUrl)}`}
+          src={iframeSrc}
           title="Video Download Options"
           onLoad={handleIframeLoad}
           onError={() => console.error("Failed to load iframe content.")}
