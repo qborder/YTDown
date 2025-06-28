@@ -1,0 +1,5 @@
+{
+  "name": "YTDown - YouTube Video Downloader",
+  "description": "A sleek, fast, and user-friendly web application built with React and Tailwind CSS to download YouTube videos in various resolutions up to 4K. Features a modern UI with glassmorphism effects and smooth animations.",
+  "requestFramePermissions": ["clipboard-read"]
+}
