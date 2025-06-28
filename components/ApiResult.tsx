@@ -69,7 +69,7 @@ export function ApiResult({ submittedUrl, isLoading }: ApiResultProps): React.Re
           title="Video Download Options"
           onLoad={handleIframeLoad}
           onError={() => console.error("Failed to load iframe content.")}
-          className={`w-full min-h-[300px] block border-none transition-opacity duration-700 ease-in-out ${isIframeLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`min-h-[300px] block border-none transition-opacity duration-700 ease-in-out ${isIframeLoaded ? 'opacity-100' : 'opacity-0'}`}
         ></iframe>
       )}
     </section>
