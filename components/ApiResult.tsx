@@ -51,8 +51,6 @@ export function ApiResult({ submittedUrl, isLoading }: ApiResultProps): React.Re
   const buildIframeSrc = () => {
     if (!submittedUrl) return '';
 
-    const baseURL = "https://p.oceansaver.in/api/card2/";
-
     const customCSS = `
       /* General styling */
       body {
@@ -176,17 +174,23 @@ export function ApiResult({ submittedUrl, isLoading }: ApiResultProps): React.Re
       }
     `;
 
-    // Minify and Base64 encode the CSS
-    const minifiedCss = customCSS.replace(/\\s\\s+/g, ' ').trim();
-    const encodedCss = btoa(minifiedCss);
-    const cssDataUri = `data:text/css;base64,${encodedCss}`;
+    // Minify, Base64 encode, and create a data URI.
+    const minifiedCss = customCSS
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/[\r\n\t]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/\s*([:;{}])\s*/g, '$1')
+      .trim();
+    
+    const base64Css = btoa(minifiedCss);
+    const cssDataUri = `data:text/css;base64,${base64Css}`;
 
-    const params = new URLSearchParams({
-      url: submittedUrl,
-      css: cssDataUri
-    });
+    // Manually build the URL with encodeURIComponent to correctly handle special chars.
+    const baseURL = "https://p.oceansaver.in/api/card2/";
+    const adUrl = 'https://ytdown.app';
+    const params = `url=${encodeURIComponent(submittedUrl)}&adUrl=${encodeURIComponent(adUrl)}&css=${encodeURIComponent(cssDataUri)}`;
 
-    return `${baseURL}?${params.toString()}`;
+    return `${baseURL}?${params}`;
   };
 
   const iframeSrc = buildIframeSrc();
