@@ -14,7 +14,20 @@ export function LiveIndicators({ className = '' }: LiveIndicatorsProps): React.R
   const [totalVisits, setTotalVisits] = useState<number>(0);
   const [isConnected, setIsConnected] = useState<boolean>(true);
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
+  const [hasJoined, setHasJoined] = useState<boolean>(false);
   const [visitorId] = useState<string>(() => `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  
+  // Track if this is a real page load vs tab switch
+  const [isPageLoad] = useState<boolean>(() => {
+    // Only count as page load if there's no existing session
+    const sessionKey = 'ytdown-session-' + visitorId;
+    const hasSession = sessionStorage.getItem(sessionKey);
+    if (!hasSession) {
+      sessionStorage.setItem(sessionKey, Date.now().toString());
+      return true;
+    }
+    return false;
+  });
 
   const fetchStats = async (action: string = 'stats', retries = 3): Promise<VisitorStats | null> => {
     for (let attempt = 0; attempt < retries; attempt++) {
@@ -23,7 +36,8 @@ export function LiveIndicators({ className = '' }: LiveIndicatorsProps): React.R
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
         
-        const response = await fetch(`${baseUrl}/api/visitors?action=${action}&visitorId=${visitorId}`, {
+        const url = `${baseUrl}/api/visitors?action=${action}&visitorId=${visitorId}${action === 'join' ? `&isPageLoad=${isPageLoad}` : ''}`;
+        const response = await fetch(url, {
           signal: controller.signal,
           headers: {
             'Cache-Control': 'no-cache'
@@ -56,11 +70,21 @@ export function LiveIndicators({ className = '' }: LiveIndicatorsProps): React.R
     let statsInterval: NodeJS.Timeout;
 
     const init = async () => {
+      // Load total visits from localStorage for persistence
+      const storedVisits = localStorage.getItem('ytdown-total-visits');
+      if (storedVisits) {
+        setTotalVisits(parseInt(storedVisits, 10));
+      }
+
       // Join as a new visitor
       const stats = await fetchStats('join');
       if (stats) {
         setCurrentViewers(stats.currentViewers);
         setTotalVisits(stats.totalVisits);
+        setHasJoined(true);
+        
+        // Store visits in localStorage for persistence
+        localStorage.setItem('ytdown-total-visits', stats.totalVisits.toString());
       }
 
       // Ping every 20 seconds to maintain presence
@@ -68,22 +92,28 @@ export function LiveIndicators({ className = '' }: LiveIndicatorsProps): React.R
         await fetchStats('ping');
       }, 20000);
 
-      // Update stats every 2 seconds for faster updates
+      // Update stats every 3 seconds (less aggressive)
       statsInterval = setInterval(async () => {
         const stats = await fetchStats('stats');
         if (stats) {
           setCurrentViewers(stats.currentViewers);
-          setTotalVisits(stats.totalVisits);
+          // Only update total visits if it's higher (prevent decreases)
+          if (stats.totalVisits >= totalVisits) {
+            setTotalVisits(stats.totalVisits);
+            localStorage.setItem('ytdown-total-visits', stats.totalVisits.toString());
+          }
         }
-      }, 2000);
+      }, 3000);
     };
 
-    // Handle page visibility changes
+    // Handle page visibility changes (don't count as new visits)
     const handleVisibilityChange = () => {
       if (document.hidden) {
+        // User switched to another tab
         fetchStats('leave');
       } else {
-        fetchStats('join');
+        // User came back to this tab (not a new visit)
+        fetchStats('ping'); // Use ping instead of join to avoid counting new visit
       }
     };
 
