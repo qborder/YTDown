@@ -8,6 +8,7 @@ import { FAQ } from './components/FAQ';
 import { Footer } from './components/Footer';
 import { BackToTopButton } from './components/BackToTopButton';
 import { GlowEffect } from './components/GlowEffect';
+import { LiveIndicators } from './components/LiveIndicators';
 import { FAQS, FEATURES, STEPS } from './constants';
 import { useAnimateOnScroll } from './useAnimateOnScroll';
 
@@ -60,6 +61,7 @@ function App(): React.ReactNode {
 
   return (
     <>
+      <LiveIndicators />
       <GlowEffect />
       <Header />
       <main role="main" className="container mx-auto px-5">
